@@ -6,7 +6,9 @@ expression: out
 
 **24 capabilities.** Path rollup: 4 native, 13 plugin, 4 custom Rust, 1 sidecar, 2 no viable path
 
-_Legend: **no viable path** = cannot be replicated; **OPEN QUESTION** = unconfirmed, needs research; plugin/native/custom Rust/sidecar = a path exists._
+6 of these are visual-tier (ADR 0001).
+
+_Legend — **Tauri path**: **no viable path** = cannot be replicated; **OPEN QUESTION** = unconfirmed, needs research; plugin/native/custom Rust/sidecar = a path exists. **Tier**: `Behavioral` = the capability must work; `Visual` = it must also look/feel the same, which stays unverified until the webview-qa live engine drivers exist._
 
 ## UWP / WinRT
 

@@ -58,10 +58,18 @@ fn summary(out: &mut String, caps: &[&Capability]) {
         }
     }
     out.push_str(&parts.join(", "));
+    let visual = caps
+        .iter()
+        .filter(|c| c.parity_tier() == crate::ParityTier::Visual)
+        .count();
+    out.push_str(&format!(
+        "\n\n{visual} of these are visual-tier (ADR 0001)."
+    ));
     out.push_str(
-        "\n\n_Legend: **no viable path** = cannot be replicated; \
-**OPEN QUESTION** = unconfirmed, needs research; \
-plugin/native/custom Rust/sidecar = a path exists._\n\n",
+        "\n\n_Legend — **Tauri path**: **no viable path** = cannot be replicated; \
+**OPEN QUESTION** = unconfirmed, needs research; plugin/native/custom Rust/sidecar = a path \
+exists. **Tier**: `Behavioral` = the capability must work; `Visual` = it must also look/feel \
+the same, which stays unverified until the webview-qa live engine drivers exist._\n\n",
     );
 }
 
