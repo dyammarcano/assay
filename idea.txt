@@ -1,0 +1,5 @@
+convert UWP,Electron to tauri seamless hacking tauri to response exactly like original app ultrathink
+
+use /unravel:* as much as possible, the original app have many tweaks features active etc focus in understand 
+
+create a document all features from uwp and electron that are missing on tauri, always baced on public documents instead of guessing
