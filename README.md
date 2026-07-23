@@ -8,6 +8,7 @@ scaffolds Rust bridge code to close the achievable gaps.
 
 - `crates/core` — `wrapswap-core`: matrix model, dataset loader, parsers, analyzer, scaffolder.
 - `crates/cli` — `cli`: the `wrap-swap` binary (`report | analyze | scaffold`).
+- `crates/winrt-shim` — `winrt-shim`: reusable WinRT capability shim (toast content + XML builder).
 - `data/matrix.toml` — the cited capability/gap dataset (source of truth).
 
 > Crate names are short and plain; the core **package** is `wrapswap-core` only so its library
@@ -17,8 +18,8 @@ scaffolds Rust bridge code to close the achievable gaps.
 ## Commands
 
 ```sh
-# Render the full cited gap matrix as Markdown
-cargo run -p cli -- report [--out FILE] [--matrix data/matrix.toml]
+# Render the full cited gap matrix as Markdown (with a per-path summary rollup)
+cargo run -p cli -- report [--out FILE] [--matrix data/matrix.toml] [--source uwp|electron]
 
 # Classify a target app's capabilities into gaps + a known-divergence report
 cargo run -p cli -- analyze --profile profile.toml
@@ -49,6 +50,7 @@ or established crate) exists; everything else is a `todo!()` stub with an inline
 ## Development
 
 ```sh
-cargo test --workspace   # 9 unit + 3 integration tests
+cargo test --workspace                              # 18 tests (unit + integration)
+cargo clippy --workspace --all-targets -- -D warnings
 cargo build --workspace
 ```
