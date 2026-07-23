@@ -117,7 +117,10 @@ citation_url = "https://learn.microsoft.com/en-us/windows/uwp/launch-resume/upda
         let toast = m.get("uwp.toast").expect("toast present");
         assert_eq!(toast.tauri_path, TauriPath::CustomRust);
         assert_eq!(toast.recipe, Some(Recipe::Proven));
-        assert_eq!(toast.crate_name.as_deref(), Some("tauri-winrt-notification"));
+        assert_eq!(
+            toast.crate_name.as_deref(),
+            Some("tauri-winrt-notification")
+        );
         let tiles = m.get("uwp.live_tiles").expect("tiles present");
         assert_eq!(tiles.tauri_path, TauriPath::None);
         assert!(tiles.recipe.is_none());
@@ -134,7 +137,11 @@ citation_url = "https://learn.microsoft.com/en-us/windows/uwp/launch-resume/upda
     fn every_row_has_a_citation() {
         let m = Matrix::embedded();
         for c in &m.capabilities {
-            assert!(!c.citation_url.trim().is_empty(), "row {} missing citation", c.id);
+            assert!(
+                !c.citation_url.trim().is_empty(),
+                "row {} missing citation",
+                c.id
+            );
         }
     }
 }

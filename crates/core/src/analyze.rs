@@ -98,14 +98,20 @@ mod tests {
         let m = Matrix::embedded();
         let a = analyze(
             &m,
-            &profile(&["uwp.toast", "uwp.live_tiles", "uwp.app_services", "nope.bogus"]),
+            &profile(&[
+                "uwp.toast",
+                "uwp.live_tiles",
+                "uwp.share_target",
+                "nope.bogus",
+            ]),
         );
         assert!(a
             .gaps
             .iter()
             .any(|g| g.id == "uwp.toast" && g.tauri_path == TauriPath::CustomRust));
+        // no-viable-path capabilities become divergences
         assert!(a.divergences.iter().any(|d| d.id == "uwp.live_tiles"));
-        assert!(a.divergences.iter().any(|d| d.id == "uwp.app_services"));
+        assert!(a.divergences.iter().any(|d| d.id == "uwp.share_target"));
         assert_eq!(a.unknown, vec!["nope.bogus".to_string()]);
     }
 }

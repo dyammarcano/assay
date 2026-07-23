@@ -72,4 +72,22 @@ mod tests {
         assert!(out.rust.contains(".plugin("));
         assert!(out.rust.contains("todo!("));
     }
+
+    #[test]
+    fn generated_bridge_is_valid_rust_syntax() {
+        let m = Matrix::embedded();
+        // Mix of every path kind: plugin, native, custom_rust-with-recipe, and a stub.
+        let p = Profile {
+            source: Source::Electron,
+            capabilities: vec![
+                "electron.global_shortcut".into(), // plugin
+                "electron.ipc".into(),             // native (proven, no plugin/crate)
+                "uwp.toast".into(),                // proven crate
+                "uwp.background_tasks".into(),     // custom_rust, no recipe -> stub
+            ],
+        };
+        let out = scaffold(&analyze(&m, &p));
+        syn::parse_file(&out.rust)
+            .unwrap_or_else(|e| panic!("generated bridge.rs is not valid Rust: {e}\n{}", out.rust));
+    }
 }

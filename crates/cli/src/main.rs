@@ -2,11 +2,14 @@ use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 use wrapswap_core::{
     analyze, parse_appx_manifest, parse_electron, render_divergence, render_report, scaffold,
-    Matrix, Profile,
+    Matrix, Profile, Source,
 };
 
 #[derive(Parser)]
-#[command(name = "wrap-swap", about = "UWP/Electron \u{2192} Tauri parity toolkit")]
+#[command(
+    name = "wrap-swap",
+    about = "UWP/Electron \u{2192} Tauri parity toolkit"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -20,6 +23,9 @@ enum Commands {
         matrix: Option<PathBuf>,
         #[arg(long)]
         out: Option<PathBuf>,
+        /// Restrict to one source: uwp | electron
+        #[arg(long)]
+        source: Option<String>,
     },
     /// Analyze a capability profile (or parsed manifest) against the matrix
     Analyze {
@@ -89,9 +95,22 @@ fn resolve_profile(
 fn main() {
     let cli = Cli::parse();
     match cli.command {
-        Commands::Report { matrix, out } => {
+        Commands::Report {
+            matrix,
+            out,
+            source,
+        } => {
             let m = load_matrix(&matrix);
-            let md = render_report(&m);
+            let only = match source.as_deref() {
+                None => None,
+                Some("uwp") => Some(Source::Uwp),
+                Some("electron") => Some(Source::Electron),
+                Some(other) => {
+                    eprintln!("error: --source must be 'uwp' or 'electron', got '{other}'");
+                    std::process::exit(2);
+                }
+            };
+            let md = render_report(&m, only);
             match out {
                 Some(p) => std::fs::write(&p, md).expect("write --out file"),
                 None => print!("{md}"),
@@ -131,7 +150,8 @@ fn main() {
             let s = scaffold(&a);
             std::fs::create_dir_all(&out_dir).expect("create --out-dir");
             std::fs::write(out_dir.join("bridge.rs"), &s.rust).expect("write bridge.rs");
-            std::fs::write(out_dir.join("deps.txt"), s.cargo_deps.join("\n")).expect("write deps.txt");
+            std::fs::write(out_dir.join("deps.txt"), s.cargo_deps.join("\n"))
+                .expect("write deps.txt");
             eprintln!("wrote bridge.rs + deps.txt to {}", out_dir.display());
         }
     }

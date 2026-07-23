@@ -80,7 +80,9 @@ mod tests {
     fn appx_maps_protocol_and_share_target() {
         let p = parse_appx_manifest(APPX);
         assert_eq!(p.source, Source::Uwp);
-        assert!(p.capabilities.contains(&"uwp.protocol_activation".to_string()));
+        assert!(p
+            .capabilities
+            .contains(&"uwp.protocol_activation".to_string()));
         assert!(p.capabilities.contains(&"uwp.share_target".to_string()));
     }
 
@@ -91,7 +93,9 @@ mod tests {
         let p = parse_electron(pkg, main);
         assert_eq!(p.source, Source::Electron);
         assert!(p.capabilities.contains(&"electron.tray".to_string()));
-        assert!(p.capabilities.contains(&"electron.global_shortcut".to_string()));
+        assert!(p
+            .capabilities
+            .contains(&"electron.global_shortcut".to_string()));
         assert!(p.capabilities.contains(&"electron.ipc".to_string()));
     }
 }
