@@ -63,7 +63,10 @@ unverifiable green, so they are surfaced rather than faked:
 - **winrt-shim native toast dispatch** — needs a registered AppUserModelID (packaged app) + a
   desktop session; "toast shown" isn't automatable-verifiable.
 - **Full temp-crate `cargo check` of generated scaffolding** — needs real tauri + plugin deps.
-- **webview-qa live engine drivers** (WebView2/WKWebView/WebKitGTK) — host-gated integration.
+- ~~**webview-qa live engine drivers**~~ — **Chromium/WebView2 family DONE** (`ChromiumDriver`,
+  headless Edge over CDP; host-gated live test passes on this host). Still blocked: **WKWebView**
+  (needs macOS) and **WebKitGTK** (needs Linux) — so cross-engine diffs need a mac/linux runner;
+  runs on Windows are single-engine and labelled as such.
 - **`/unravel:*` matrix validation** — needs a concrete pilot binary (none supplied at intake).
 
 ## Guiding invariant

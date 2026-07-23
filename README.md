@@ -55,11 +55,19 @@ cargo run -p cli -- scaffold --profile examples/profile-uwp.toml --out-dir wrap-
 cargo run -p cli -- sidecar --electron-pkg examples/electron-app/package.json \
     --out-dir sidecar-out
 
-# 6. Cross-WebView harness: starter config -> per-engine probe JS -> diff recorded blobs
+# 6. Cross-WebView harness: config -> LIVE capture -> diff
 cargo run -p webview-qa -- init-config --out webview-qa.toml
-cargo run -p webview-qa -- probe --engine webview2 --config webview-qa.toml --out probe.js
-cargo run -p webview-qa -- diff --blob webview2.json --blob webkitgtk.json
+cargo run -p webview-qa -- capture --url https://example.com --config webview-qa.toml --out edge.json
+cargo run -p webview-qa -- diff --blob edge.json --blob other-engine.json
+
+# (or render the probe JS to run yourself inside another engine's driver)
+cargo run -p webview-qa -- probe --engine wkwebview --config webview-qa.toml --out probe.js
 ```
+
+`capture` drives **headless Edge over the DevTools protocol** — Edge's Chromium is the engine
+WebView2 embeds, so the capture is representative of WebView2 (it's labelled `chromium-edge`,
+not `webview2`, because it is Edge and not an embedded WebView2 host). WKWebView and WebKitGTK
+drivers need macOS/Linux; on Windows a run is single-engine and the report says so explicitly.
 
 Step 4 on `examples/profile-uwp.toml` is the honesty invariant in action: `uwp.toast` and
 `uwp.protocol_activation` get real wiring, while `uwp.live_tiles` / `uwp.share_target` are

@@ -13,12 +13,16 @@ ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Ph
   + `generate_sidecar` (stdio-JSON sidecar skeleton, `SidecarClient`, `MIGRATION.md`) + the
   `wrap-swap sidecar` subcommand. Spec:
   `docs/superpowers/specs/2026-07-23-sidecar-migration-kit-design.md`. (Brief §5.3)
-- [~] **Cross-WebView QA harness** — **core done**: `crates/webview-qa` (`EngineBlob` model +
-  pairwise `diff` + `render_report` + `webview-qa diff` CLI over recorded blobs). Remaining: the
-  live per-engine drivers (WebView2/WKWebView/WebKitGTK) that produce the blobs — host-gated
-  integration. Spec: `docs/superpowers/specs/2026-07-23-cross-webview-qa-harness-design.md`. (Brief §5.4)
-  **Now a hard dependency** of ADR 0001: no `visual`-tier capability can be claimed until these
-  drivers exist — every one is reported as "visual parity NOT measured" today.
+- [~] **Cross-WebView QA harness** — core + **Chromium driver done**: `crates/webview-qa`
+  (`EngineBlob` + pairwise `diff` + `render_report` + `probe`/`capture`/`diff` CLI, and a real
+  `ChromiumDriver` driving headless Edge over CDP). Remaining: **WKWebView** (macOS) and
+  **WebKitGTK** (Linux) drivers — each needs its own OS, so a true cross-engine diff needs a
+  mac/linux runner. Specs:
+  `docs/superpowers/specs/2026-07-23-cross-webview-qa-harness-design.md`,
+  `…-chromium-driver-design.md`. (Brief §5.4)
+  **Hard dependency** of ADR 0001: a `visual`-tier capability can only be claimed once the
+  engines it must match are actually captured — today every one reports "visual parity NOT
+  measured".
 
 ## Open research questions
 - [x] App Services / package-identity RPC — **resolved** (`4d1c950`): AppServiceConnection is

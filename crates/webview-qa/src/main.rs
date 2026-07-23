@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand};
 use std::path::{Path, PathBuf};
-use webview_qa::{diff, render_probe, render_report, Config, EngineBlob};
+use webview_qa::{
+    diff, render_probe, render_report, ChromiumDriver, Config, EngineBlob, WebViewDriver,
+};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -36,6 +38,22 @@ enum Commands {
     InitConfig {
         #[arg(long, default_value = "webview-qa.toml")]
         out: PathBuf,
+    },
+    /// Capture a real EngineBlob from a live engine (headless Chromium/Edge)
+    Capture {
+        /// Page to load (http(s):// or file:///)
+        #[arg(long)]
+        url: String,
+        /// Engine label recorded in the blob
+        #[arg(long, default_value = "chromium-edge")]
+        engine: String,
+        /// Override the engine binary (defaults to auto-detected Edge/Chrome)
+        #[arg(long)]
+        exe: Option<PathBuf>,
+        #[arg(long)]
+        config: Option<PathBuf>,
+        #[arg(long)]
+        out: Option<PathBuf>,
     },
 }
 
@@ -94,6 +112,32 @@ fn run() -> Result<()> {
             std::fs::write(&out, Config::sample().to_toml())
                 .map_err(|e| format!("cannot write {}: {e}", out.display()))?;
             eprintln!("wrote starter config to {}", out.display());
+        }
+        Commands::Capture {
+            url,
+            engine,
+            exe,
+            config,
+            out,
+        } => {
+            let cfg = match &config {
+                Some(p) => {
+                    let s = read_file(p, "cannot read --config")?;
+                    Config::from_toml(&s)
+                        .map_err(|e| format!("invalid --config ({}): {e}", p.display()))?
+                }
+                None => Config::sample(),
+            };
+            let driver = match exe {
+                Some(path) => ChromiumDriver {
+                    exe: path,
+                    engine: engine.clone(),
+                },
+                None => ChromiumDriver::detect()?.with_engine_label(engine.clone()),
+            };
+            let blob = driver.capture(&url, &cfg)?;
+            let json = serde_json::to_string_pretty(&blob).expect("serialize blob");
+            emit(&out, &format!("{json}\n"))?;
         }
     }
     Ok(())

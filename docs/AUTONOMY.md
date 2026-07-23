@@ -40,6 +40,14 @@ Per phase, run spec → self-review → plan → execute (TDD) → whole-branch 
 - Scope satisfied (roadmap + backlog exhausted).
 
 ## Decision log (newest first)
+- **2026-07-23 — Chromium driver approach (headless Edge + CDP, not embedded `wry`):** probed the
+  host instead of re-reporting "blocked" and found Edge + the WebView2 Runtime installed. Chose
+  CDP over embedding: no GUI event loop, no large native dep tree, same Chromium engine. Labelled
+  `chromium-edge` (not `webview2`) per the honesty invariants. Forks in
+  `docs/superpowers/specs/2026-07-23-chromium-driver-design.md`. Two real bugs were found only
+  because the test drove a live engine: a `Host` header missing its port (DevTools silently
+  ignores mismatched Host) and a read-to-EOF against a keep-alive server (discarded the response
+  on timeout).
 - **2026-07-23 — ADR 0001 mimicry bar settled autonomously (Option B, phased):** the operator
   re-invoked `/steps:autonomous` with the ADR still Proposed; under decide-and-log authority I
   accepted my own recommendation rather than pausing. Chose B because it is the *conservative*

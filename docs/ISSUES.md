@@ -14,9 +14,15 @@ this file is for defects and hard boundaries of the current build.
   be addressed as an App Service (no `PackageFamilyName`). Cited in `data/matrix.toml`.
 - **PowerMonitor has no plugin.** `electron.power_monitor` has no official/community Tauri v2
   plugin (plugins-workspace #990 open); the only path is a custom `windows-rs` command.
-- **WebView divergence is unmodeled.** The known-divergence report warns that
-  WebView2/WKWebView/WebKitGTK can render/behave differently, but wrap-swap does not measure or
-  test it (see BACKLOG: Cross-WebView QA harness).
+- **Cross-engine capture is single-engine on Windows.** `webview-qa capture` drives headless
+  Edge (Chromium/WebView2 family) for real. WKWebView and WebKitGTK drivers require macOS and
+  Linux respectively, so a genuine cross-engine diff needs a mac/linux runner. A one-engine run
+  is always labelled "Engines exercised (1)" and never reads as cross-engine confidence.
+- **A Chromium capture is representative of WebView2, not identical to it.** It is Edge, not an
+  embedded WebView2 host (different flags/chrome), hence the `chromium-edge` engine label.
+- **Visual-tier parity is declared but unmeasured.** ADR 0001 marks six capabilities
+  `visual`; `analyze` reports each as "visual parity NOT measured" until the engines they must
+  match are actually captured.
 
 ## Parser limitations
 

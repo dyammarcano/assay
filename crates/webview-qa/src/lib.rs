@@ -8,7 +8,9 @@
 //! integration work; this crate operates on recorded blobs so it is useful and
 //! testable without a live engine.
 
+pub mod driver;
 pub mod probe;
+pub use driver::{find_edge, ChromiumDriver, DriverError, WebViewDriver};
 pub use probe::{render_probe, Config};
 
 use serde::{Deserialize, Serialize};
