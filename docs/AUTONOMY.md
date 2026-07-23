@@ -40,6 +40,12 @@ Per phase, run spec → self-review → plan → execute (TDD) → whole-branch 
 - Scope satisfied (roadmap + backlog exhausted).
 
 ## Decision log (newest first)
+- **2026-07-23 — Autonomous run stopped (blocker cluster):** shipped Phase 1 (sidecar kit,
+  `e3e32a4`) and Phase 2 (webview-qa core, `c38ce45`). Stopped before Phase 3: all remaining
+  roadmap work (winrt-shim native dispatch, full scaffold `cargo check`, webview-qa live drivers,
+  `/unravel:*` validation) needs external prerequisites (AUMID/packaging, real tauri+plugin deps,
+  live WebView engines, a pilot binary) and would merge on an unverifiable green — surfaced per
+  invariant #4 rather than faked.
 - **2026-07-23 — Crate naming override:** operator instructed "rename all crates, remove prefix";
   renamed package `wrapswap-core` → `core`, waiving the std-`core`-shadow exception for this
   project. `cli` imports it as `core::`; verified building clean. The global AGENTS.md exception

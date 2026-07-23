@@ -44,6 +44,15 @@ recipes, `todo!()` stubs elsewhere, nothing fabricated for no-path/open-question
 - [x] Sidecar native-module migration kit — done (`e3e32a4`): detection + codegen + `sidecar` cmd
 - [x] Cross-WebView QA harness — done: `webview-qa` crate (engine-blob model + differ + `diff` cmd)
 
+## Remaining — blocked on external prerequisites (autonomous run stopped here)
+These need inputs/runtimes not available in the build environment; each would merge on an
+unverifiable green, so they are surfaced rather than faked:
+- **winrt-shim native toast dispatch** — needs a registered AppUserModelID (packaged app) + a
+  desktop session; "toast shown" isn't automatable-verifiable.
+- **Full temp-crate `cargo check` of generated scaffolding** — needs real tauri + plugin deps.
+- **webview-qa live engine drivers** (WebView2/WKWebView/WebKitGTK) — host-gated integration.
+- **`/unravel:*` matrix validation** — needs a concrete pilot binary (none supplied at intake).
+
 ## Guiding invariant
 Public-docs-only. Every capability claim carries a citation; unconfirmed items surface as
 **OPEN QUESTION**, never as asserted parity.
