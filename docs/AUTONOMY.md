@@ -29,7 +29,8 @@ Per phase, run spec → self-review → plan → execute (TDD) → whole-branch 
 2. **No fabricated code** — the scaffolder emits implementation code ONLY for `recipe = "proven"`
    rows; `none`/`open_question` go to the divergence report, never to generated code.
 3. **No-publish** — all crates keep `publish = false`; plain crate names (no registry-uniqueness
-   prefix) except the std-shadow exception (`wrapswap-core`).
+   prefix). Per operator override (2026-07-23), the core crate is named `core` (imported as
+   `core::`) — the std-shadow exception was explicitly waived.
 4. **Green gate is a direct tool run** — never merge on a self-reported green; `cargo test` +
    `cargo clippy -D warnings` + `cargo fmt --check` must pass.
 
@@ -39,6 +40,10 @@ Per phase, run spec → self-review → plan → execute (TDD) → whole-branch 
 - Scope satisfied (roadmap + backlog exhausted).
 
 ## Decision log (newest first)
+- **2026-07-23 — Crate naming override:** operator instructed "rename all crates, remove prefix";
+  renamed package `wrapswap-core` → `core`, waiving the std-`core`-shadow exception for this
+  project. `cli` imports it as `core::`; verified building clean. The global AGENTS.md exception
+  is unchanged (applies to other projects unless similarly overridden).
 - **2026-07-23 — Execution engine:** solo-agent direct implementation on `main` with direct
   `cargo` verification as the green gate, rather than per-task subagent fan-out. Rationale: single
   local repo, small well-scoped phases, full context in hand; direct verification satisfies the

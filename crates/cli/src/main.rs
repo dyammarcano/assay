@@ -1,9 +1,9 @@
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
-use wrapswap_core::{
+use core::{
     analyze, detect_native_modules, generate_sidecar, parse_appx_manifest, parse_electron,
     render_divergence, render_report, scaffold, Matrix, Profile, Source,
 };
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(

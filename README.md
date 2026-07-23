@@ -6,14 +6,13 @@ scaffolds Rust bridge code to close the achievable gaps.
 
 ## Layout
 
-- `crates/core` — `wrapswap-core`: matrix model, dataset loader, parsers, analyzer, scaffolder.
-- `crates/cli` — `cli`: the `wrap-swap` binary (`report | analyze | scaffold`).
+- `crates/core` — `core`: matrix model, dataset loader, parsers, analyzer, scaffolder.
+- `crates/cli` — `cli`: the `wrap-swap` binary (`report | analyze | scaffold | sidecar`).
 - `crates/winrt-shim` — `winrt-shim`: reusable WinRT capability shim (toast content + XML builder).
 - `data/matrix.toml` — the cited capability/gap dataset (source of truth).
 
-> Crate names are short and plain; the core **package** is `wrapswap-core` only so its library
-> doesn't shadow the standard-library `core` crate. Both crates set `publish = false` —
-> nothing here is published to crates.io.
+> Crate names are short and plain, with no project prefix. All crates set `publish = false` —
+> nothing here is published to crates.io. (`cli` imports the `core` crate as `core::`.)
 
 ## Commands
 

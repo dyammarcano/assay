@@ -10,7 +10,7 @@ name = "wrap-swap"
 path = "src/main.rs"
 
 [dependencies]
-wrapswap-core = { path = "../core" }
+core = { path = "../core" }
 clap = { workspace = true }
 
 [dev-dependencies]

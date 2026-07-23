@@ -9,7 +9,7 @@ UWP/Electron → Tauri v2 parity toolkit. Phases derive from the implementation 
 (`docs/discovery/IDEA-BRIEF.md`).
 
 ## Phase 1 — Cited gap matrix + `report` (MVP foundation)
-- [x] Cargo workspace + `wrapswap-core` matrix data model (Task 1)
+- [x] Cargo workspace + `core` matrix data model (Task 1)
 - [x] `data/matrix.toml` cited dataset + citation lint (Task 2)
 - [x] `report` Markdown renderer (Task 3)
 - [x] `wrapswap-cli` + `report` subcommand — end-to-end (Task 4)
