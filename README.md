@@ -7,25 +7,26 @@ scaffolds Rust bridge code to close the achievable gaps.
 ## Layout
 
 - `crates/core` — `wrapswap-core`: matrix model, dataset loader, parsers, analyzer, scaffolder.
-- `crates/cli` — `wrapswap-cli`: the `wrap-swap` binary (`report | analyze | scaffold`).
+- `crates/cli` — `cli`: the `wrap-swap` binary (`report | analyze | scaffold`).
 - `data/matrix.toml` — the cited capability/gap dataset (source of truth).
 
-> Crate **folders** are short (`core`, `cli`); the core **package** is named `wrapswap-core`
-> so its library doesn't shadow the standard-library `core` crate. Nothing here is published.
+> Crate names are short and plain; the core **package** is `wrapswap-core` only so its library
+> doesn't shadow the standard-library `core` crate. Both crates set `publish = false` —
+> nothing here is published to crates.io.
 
 ## Commands
 
 ```sh
 # Render the full cited gap matrix as Markdown
-cargo run -p wrapswap-cli -- report [--out FILE] [--matrix data/matrix.toml]
+cargo run -p cli -- report [--out FILE] [--matrix data/matrix.toml]
 
 # Classify a target app's capabilities into gaps + a known-divergence report
-cargo run -p wrapswap-cli -- analyze --profile profile.toml
-cargo run -p wrapswap-cli -- analyze --appx AppxManifest.xml
-cargo run -p wrapswap-cli -- analyze --electron-pkg package.json --electron-main main.js
+cargo run -p cli -- analyze --profile profile.toml
+cargo run -p cli -- analyze --appx AppxManifest.xml
+cargo run -p cli -- analyze --electron-pkg package.json --electron-main main.js
 
 # Emit Rust/Tauri bridge scaffolding (bridge.rs + deps.txt) for a profile's gaps
-cargo run -p wrapswap-cli -- scaffold --profile profile.toml --out-dir wrap-swap-out
+cargo run -p cli -- scaffold --profile profile.toml --out-dir wrap-swap-out
 ```
 
 A capability profile is TOML:
