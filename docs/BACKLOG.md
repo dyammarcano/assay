@@ -27,8 +27,8 @@ ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Ph
   electronjs.org.
 - [x] PowerMonitor-equivalent Tauri plugin — **resolved** (`4d1c950`): none exists
   (plugins-workspace #990 open); path = `custom_rust` via windows-rs. Matrix row updated.
-- Decide the mimicry bar depth per capability: behavior-only vs. interaction/visual parity —
-  the WebView-divergence finding bounds how far "exactly like the original" can go. (Brief §6)
+- [~] Decide the mimicry bar depth per capability — **ADR drafted**, awaiting operator decision:
+  `docs/adr/0001-mimicry-bar.md` (options A/B/C + recommendation B, phased). (Brief §6)
 
 ## Deferred hardening (from the plan self-review)
 - [x] Syntactic validity of generated scaffolding — **done** (`4d1c950`): `syn::parse_file`

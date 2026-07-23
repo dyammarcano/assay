@@ -1,0 +1,11 @@
+# Hand-written capability profile — the fallback/override when you have no manifest,
+# or when you want to edit what the parser detected (`analyze --emit-profile`).
+source = "uwp"
+capabilities = [
+    "uwp.toast",
+    "uwp.protocol_activation",
+    "uwp.credential_vault",
+    "uwp.live_tiles",     # no viable path -> divergence report, never scaffolded
+    "uwp.share_target",   # no viable path -> divergence report
+    "uwp.app_services",   # custom_rust, MSIX-only
+]

@@ -15,6 +15,18 @@ pub struct SidecarKit {
     pub main_rs: String,
     pub client_rs: String,
     pub migration_md: String,
+    /// `tauri.conf.json` fragment registering the sidecar as an external binary
+    /// and granting the shell-execute permission it needs.
+    pub tauri_conf_snippet: String,
+}
+
+/// The `tauri.conf.json` fragment to merge into the host app's config.
+///
+/// `externalBin` paths are resolved by Tauri with a target-triple suffix, so the
+/// bundled binary must be named `sidecar-<triple>(.exe)`.
+fn gen_tauri_conf_snippet() -> String {
+    "{\n  \"bundle\": {\n    \"externalBin\": [\n      \"binaries/sidecar\"\n    ]\n  },\n  \"plugins\": {\n    \"shell\": {\n      \"sidecar\": true,\n      \"scope\": [\n        {\n          \"name\": \"binaries/sidecar\",\n          \"sidecar\": true,\n          \"args\": false\n        }\n      ]\n    }\n  }\n}\n"
+        .to_string()
 }
 
 fn gen_cargo_toml() -> String {
@@ -145,6 +157,7 @@ pub fn generate_sidecar(modules: &[NativeModule]) -> SidecarKit {
         main_rs: gen_main_rs(modules),
         client_rs: gen_client_rs(),
         migration_md: gen_migration_md(modules),
+        tauri_conf_snippet: gen_tauri_conf_snippet(),
     }
 }
 
@@ -196,5 +209,33 @@ mod tests {
         let kit = generate_sidecar(&[]);
         syn::parse_file(&kit.main_rs).expect("main.rs valid for empty");
         assert!(kit.migration_md.contains("none detected"));
+    }
+
+    #[test]
+    fn tauri_conf_snippet_is_valid_json_registering_the_sidecar() {
+        let kit = generate_sidecar(&sample());
+        let v: serde_json::Value =
+            serde_json::from_str(&kit.tauri_conf_snippet).expect("snippet is valid JSON");
+        assert_eq!(
+            v["bundle"]["externalBin"][0].as_str(),
+            Some("binaries/sidecar")
+        );
+        assert_eq!(v["plugins"]["shell"]["sidecar"].as_bool(), Some(true));
+    }
+
+    // Golden snapshots: lock the full generated output against silent drift.
+    #[test]
+    fn golden_sidecar_main_rs() {
+        insta::assert_snapshot!(generate_sidecar(&sample()).main_rs);
+    }
+
+    #[test]
+    fn golden_sidecar_client_rs() {
+        insta::assert_snapshot!(generate_sidecar(&sample()).client_rs);
+    }
+
+    #[test]
+    fn golden_sidecar_migration_md() {
+        insta::assert_snapshot!(generate_sidecar(&sample()).migration_md);
     }
 }

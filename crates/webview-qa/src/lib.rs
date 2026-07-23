@@ -8,6 +8,9 @@
 //! integration work; this crate operates on recorded blobs so it is useful and
 //! testable without a live engine.
 
+pub mod probe;
+pub use probe::{render_probe, Config};
+
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 

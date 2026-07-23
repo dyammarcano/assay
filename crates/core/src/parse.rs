@@ -39,13 +39,10 @@ pub fn parse_electron(package_json: &str, main_source: &str) -> Profile {
             push(&mut caps, id);
         }
     }
-    if let Ok(json) = serde_json::from_str::<serde_json::Value>(package_json) {
-        if let Some(deps) = json.get("dependencies").and_then(|d| d.as_object()) {
-            let native = ["node-gyp", "bindings", "node-addon-api", "ffi-napi"];
-            if deps.keys().any(|k| native.contains(&k.as_str())) {
-                push(&mut caps, "electron.native_module");
-            }
-        }
+    // Reuse the canonical detector so `analyze` and `sidecar` never disagree about
+    // whether a project has native modules.
+    if !detect_native_modules(package_json).is_empty() {
+        push(&mut caps, "electron.native_module");
     }
     Profile {
         source: Source::Electron,
@@ -193,5 +190,23 @@ mod tests {
     fn detects_no_native_modules_in_pure_js_project() {
         let pkg = r#"{"dependencies":{"react":"18","lodash":"4"}}"#;
         assert!(detect_native_modules(pkg).is_empty());
+    }
+
+    /// `analyze` and `sidecar` must agree: any package.json that yields native
+    /// modules must also flag the `electron.native_module` capability.
+    #[test]
+    fn native_module_capability_agrees_with_detector() {
+        let pkg = r#"{"dependencies":{"serialport":"^12","node-gyp-build":"4"}}"#;
+        let p = parse_electron(pkg, "");
+        assert!(!detect_native_modules(pkg).is_empty());
+        assert!(p
+            .capabilities
+            .contains(&"electron.native_module".to_string()));
+
+        let pure = r#"{"dependencies":{"react":"18"}}"#;
+        let p2 = parse_electron(pure, "");
+        assert!(!p2
+            .capabilities
+            .contains(&"electron.native_module".to_string()));
     }
 }

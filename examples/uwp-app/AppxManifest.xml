@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fixture UWP manifest for wrap-swap demos (not a real package). -->
+<Package
+    xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+    xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3">
+
+  <Identity Name="Example.WrapSwapDemo" Publisher="CN=Example" Version="1.0.0.0" />
+
+  <Applications>
+    <Application Id="App">
+      <Extensions>
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="exampleapp" />
+        </uap:Extension>
+
+        <Extension Category="windows.shareTarget" />
+
+        <Extension Category="windows.backgroundTasks" EntryPoint="Example.BackgroundTask">
+          <BackgroundTasks>
+            <Task Type="timer" />
+          </BackgroundTasks>
+        </Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+</Package>

@@ -44,6 +44,18 @@ recipes, `todo!()` stubs elsewhere, nothing fabricated for no-path/open-question
 - [x] Sidecar native-module migration kit — done (`e3e32a4`): detection + codegen + `sidecar` cmd
 - [x] Cross-WebView QA harness — done: `webview-qa` crate (engine-blob model + differ + `diff` cmd)
 
+## Hardening & compliance cycle (`/steps:next` all — done)
+- [x] LICENSE (BSD 3-Clause) — was missing entirely
+- [x] Project `AGENTS.md` + `CLAUDE.md`
+- [x] Sidecar kit emits `tauri.conf.snippet.json` (externalBin + shell scope) — spec gap closed
+- [x] `webview-qa` probe JS + `webview-qa.toml` config schema (+ `probe`/`init-config` cmds)
+- [x] CLI error handling — no more `.expect()` panics; clean messages + exit codes (2 = usage)
+- [x] Golden snapshot tests for generated bridge/sidecar/migration output
+- [x] `docs/ARCHITECTURE.md` (mermaid: crate graph + all three flows)
+- [x] `examples/` fixtures (UWP manifest, Electron app, profile) + README walkthrough
+- [x] CI workflow (`.github/workflows/ci.yml`: fmt + clippy + test + build)
+- [~] Mimicry-bar decision — ADR drafted, awaiting operator call (`docs/adr/0001-mimicry-bar.md`)
+
 ## Remaining — blocked on external prerequisites (autonomous run stopped here)
 These need inputs/runtimes not available in the build environment; each would merge on an
 unverifiable green, so they are surfaced rather than faked:

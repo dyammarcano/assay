@@ -90,4 +90,22 @@ mod tests {
         syn::parse_file(&out.rust)
             .unwrap_or_else(|e| panic!("generated bridge.rs is not valid Rust: {e}\n{}", out.rust));
     }
+
+    /// Golden snapshot: lock the full generated bridge against silent drift.
+    #[test]
+    fn golden_bridge_rs() {
+        let m = Matrix::embedded();
+        let p = Profile {
+            source: Source::Electron,
+            capabilities: vec![
+                "electron.global_shortcut".into(),
+                "electron.ipc".into(),
+                "uwp.toast".into(),
+                "uwp.background_tasks".into(),
+            ],
+        };
+        let out = scaffold(&analyze(&m, &p));
+        insta::assert_snapshot!(out.rust);
+        insta::assert_snapshot!("bridge_deps", out.cargo_deps.join("\n"));
+    }
 }

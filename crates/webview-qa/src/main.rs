@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
-use webview_qa::{diff, render_report, EngineBlob};
+use std::path::{Path, PathBuf};
+use webview_qa::{diff, render_probe, render_report, Config, EngineBlob};
+
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Parser)]
 #[command(name = "webview-qa", about = "Cross-WebView divergence harness")]
@@ -19,27 +21,80 @@ enum Commands {
         #[arg(long)]
         out: Option<PathBuf>,
     },
+    /// Render the injectable probe JS for an engine (a driver evals this in the page)
+    Probe {
+        /// Engine label recorded in the resulting blob (e.g. webview2)
+        #[arg(long)]
+        engine: String,
+        /// webview-qa.toml; falls back to the built-in sample config
+        #[arg(long)]
+        config: Option<PathBuf>,
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
+    /// Write a starter webview-qa.toml
+    InitConfig {
+        #[arg(long, default_value = "webview-qa.toml")]
+        out: PathBuf,
+    },
+}
+
+fn read_file(p: &Path, what: &str) -> Result<String> {
+    std::fs::read_to_string(p).map_err(|e| format!("{what} ({}): {e}", p.display()).into())
+}
+
+fn emit(out: &Option<PathBuf>, text: &str) -> Result<()> {
+    match out {
+        Some(p) => std::fs::write(p, text)
+            .map_err(|e| format!("cannot write --out ({}): {e}", p.display()).into()),
+        None => {
+            print!("{text}");
+            Ok(())
+        }
+    }
 }
 
 fn main() {
+    if let Err(e) = run() {
+        eprintln!("error: {e}");
+        std::process::exit(1);
+    }
+}
+
+fn run() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Commands::Diff { blob, out } => {
-            let blobs: Vec<EngineBlob> = blob
-                .iter()
-                .map(|p| {
-                    let s = std::fs::read_to_string(p)
-                        .unwrap_or_else(|e| panic!("read {}: {e}", p.display()));
-                    serde_json::from_str(&s)
-                        .unwrap_or_else(|e| panic!("parse {}: {e}", p.display()))
-                })
-                .collect();
-            let divergences = diff(&blobs);
-            let report = render_report(&blobs, &divergences);
-            match out {
-                Some(p) => std::fs::write(&p, report).expect("write --out"),
-                None => print!("{report}"),
+            let mut blobs: Vec<EngineBlob> = Vec::new();
+            for p in &blob {
+                let s = read_file(p, "cannot read --blob")?;
+                let b: EngineBlob = serde_json::from_str(&s)
+                    .map_err(|e| format!("invalid blob ({}): {e}", p.display()))?;
+                blobs.push(b);
             }
+            let divergences = diff(&blobs);
+            emit(&out, &render_report(&blobs, &divergences))?;
+        }
+        Commands::Probe {
+            engine,
+            config,
+            out,
+        } => {
+            let cfg = match &config {
+                Some(p) => {
+                    let s = read_file(p, "cannot read --config")?;
+                    Config::from_toml(&s)
+                        .map_err(|e| format!("invalid --config ({}): {e}", p.display()))?
+                }
+                None => Config::sample(),
+            };
+            emit(&out, &render_probe(&engine, &cfg))?;
+        }
+        Commands::InitConfig { out } => {
+            std::fs::write(&out, Config::sample().to_toml())
+                .map_err(|e| format!("cannot write {}: {e}", out.display()))?;
+            eprintln!("wrote starter config to {}", out.display());
         }
     }
+    Ok(())
 }

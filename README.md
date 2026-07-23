@@ -33,6 +33,38 @@ cargo run -p cli -- scaffold --profile profile.toml --out-dir wrap-swap-out
 cargo run -p cli -- sidecar --electron-pkg package.json --out-dir sidecar-out
 ```
 
+## Walkthrough (runnable, uses `examples/`)
+
+```sh
+# 1. See the whole cited gap matrix (or just one platform)
+cargo run -p cli -- report --source uwp
+
+# 2. Analyze the fixture UWP app straight from its manifest,
+#    saving the detected profile so you can edit it
+cargo run -p cli -- analyze --appx examples/uwp-app/AppxManifest.xml \
+    --emit-profile my-profile.toml
+
+# 3. Analyze the fixture Electron app from package.json + main process
+cargo run -p cli -- analyze --electron-pkg examples/electron-app/package.json \
+    --electron-main examples/electron-app/main.js
+
+# 4. Scaffold bridge code from a hand-written profile
+cargo run -p cli -- scaffold --profile examples/profile-uwp.toml --out-dir wrap-swap-out
+
+# 5. Scaffold a sidecar kit for the fixture app's native modules
+cargo run -p cli -- sidecar --electron-pkg examples/electron-app/package.json \
+    --out-dir sidecar-out
+
+# 6. Cross-WebView harness: starter config -> per-engine probe JS -> diff recorded blobs
+cargo run -p webview-qa -- init-config --out webview-qa.toml
+cargo run -p webview-qa -- probe --engine webview2 --config webview-qa.toml --out probe.js
+cargo run -p webview-qa -- diff --blob webview2.json --blob webkitgtk.json
+```
+
+Step 4 on `examples/profile-uwp.toml` is the honesty invariant in action: `uwp.toast` and
+`uwp.protocol_activation` get real wiring, while `uwp.live_tiles` / `uwp.share_target` are
+reported as divergences and produce **no code at all**.
+
 A capability profile is TOML:
 
 ```toml
