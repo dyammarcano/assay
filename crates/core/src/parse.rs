@@ -60,6 +60,81 @@ fn push(v: &mut Vec<String>, id: &str) {
     }
 }
 
+/// A native Node module detected in an Electron project's dependencies.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NativeModule {
+    pub name: String,
+    pub detection_reason: String,
+    pub has_prebuilds: bool,
+}
+
+/// Detect native (N-API/node-gyp) modules from an Electron `package.json`.
+///
+/// Detection is name-based (no `node_modules` scan): a dependency is flagged if it is a
+/// known native-addon toolchain/marker package, or a commonly-native package. `has_prebuilds`
+/// is true when the project pulls a prebuild fetcher (`prebuild-install` / `node-gyp-build`).
+pub fn detect_native_modules(package_json: &str) -> Vec<NativeModule> {
+    // Toolchain/marker packages — presence signals native addons in the tree.
+    let markers = [
+        "node-gyp",
+        "node-addon-api",
+        "node-gyp-build",
+        "bindings",
+        "ffi-napi",
+        "napi",
+        "nan",
+    ];
+    // Commonly-native packages worth calling out by name.
+    let known_native = [
+        "sqlite3",
+        "better-sqlite3",
+        "serialport",
+        "sharp",
+        "bcrypt",
+        "canvas",
+        "robotjs",
+        "keytar",
+        "node-pty",
+        "usb",
+        "s7zip-bin",
+    ];
+
+    let mut out: Vec<NativeModule> = Vec::new();
+    let json: serde_json::Value = match serde_json::from_str(package_json) {
+        Ok(v) => v,
+        Err(_) => return out,
+    };
+    let mut names: Vec<String> = Vec::new();
+    for section in ["dependencies", "optionalDependencies"] {
+        if let Some(obj) = json.get(section).and_then(|d| d.as_object()) {
+            names.extend(obj.keys().cloned());
+        }
+    }
+    let has_prebuilds = names
+        .iter()
+        .any(|n| n == "prebuild-install" || n == "node-gyp-build");
+
+    for name in &names {
+        let reason = if markers.contains(&name.as_str()) {
+            Some(format!("native-addon toolchain/marker `{name}`"))
+        } else if known_native.contains(&name.as_str()) {
+            Some(format!("commonly-native package `{name}`"))
+        } else {
+            None
+        };
+        if let Some(detection_reason) = reason {
+            if !out.iter().any(|m| &m.name == name) {
+                out.push(NativeModule {
+                    name: name.clone(),
+                    detection_reason,
+                    has_prebuilds,
+                });
+            }
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -97,5 +172,26 @@ mod tests {
             .capabilities
             .contains(&"electron.global_shortcut".to_string()));
         assert!(p.capabilities.contains(&"electron.ipc".to_string()));
+    }
+
+    #[test]
+    fn detects_native_modules_by_marker_and_known_name() {
+        let pkg = r#"{
+            "dependencies": { "serialport": "^12", "left-pad": "1", "node-gyp-build": "4" },
+            "optionalDependencies": { "keytar": "^7" }
+        }"#;
+        let mods = detect_native_modules(pkg);
+        let names: Vec<&str> = mods.iter().map(|m| m.name.as_str()).collect();
+        assert!(names.contains(&"serialport")); // known-native
+        assert!(names.contains(&"keytar")); // known-native, optionalDependencies
+        assert!(names.contains(&"node-gyp-build")); // marker
+        assert!(!names.contains(&"left-pad")); // pure JS, not flagged
+        assert!(mods.iter().all(|m| m.has_prebuilds)); // node-gyp-build present
+    }
+
+    #[test]
+    fn detects_no_native_modules_in_pure_js_project() {
+        let pkg = r#"{"dependencies":{"react":"18","lodash":"4"}}"#;
+        assert!(detect_native_modules(pkg).is_empty());
     }
 }

@@ -1,8 +1,8 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 use wrapswap_core::{
-    analyze, parse_appx_manifest, parse_electron, render_divergence, render_report, scaffold,
-    Matrix, Profile, Source,
+    analyze, detect_native_modules, generate_sidecar, parse_appx_manifest, parse_electron,
+    render_divergence, render_report, scaffold, Matrix, Profile, Source,
 };
 
 #[derive(Parser)]
@@ -55,6 +55,13 @@ enum Commands {
         #[arg(long)]
         electron_main: Option<PathBuf>,
         #[arg(long, default_value = "wrap-swap-out")]
+        out_dir: PathBuf,
+    },
+    /// Detect Electron native modules and scaffold a sidecar migration kit
+    Sidecar {
+        #[arg(long)]
+        electron_pkg: PathBuf,
+        #[arg(long, default_value = "sidecar-out")]
         out_dir: PathBuf,
     },
 }
@@ -153,6 +160,28 @@ fn main() {
             std::fs::write(out_dir.join("deps.txt"), s.cargo_deps.join("\n"))
                 .expect("write deps.txt");
             eprintln!("wrote bridge.rs + deps.txt to {}", out_dir.display());
+        }
+        Commands::Sidecar {
+            electron_pkg,
+            out_dir,
+        } => {
+            let pkg = std::fs::read_to_string(&electron_pkg).expect("read --electron-pkg");
+            let modules = detect_native_modules(&pkg);
+            let kit = generate_sidecar(&modules);
+            let sidecar_src = out_dir.join("sidecar").join("src");
+            std::fs::create_dir_all(&sidecar_src).expect("create sidecar/src");
+            std::fs::write(out_dir.join("sidecar").join("Cargo.toml"), &kit.cargo_toml)
+                .expect("write sidecar/Cargo.toml");
+            std::fs::write(sidecar_src.join("main.rs"), &kit.main_rs).expect("write main.rs");
+            std::fs::write(out_dir.join("sidecar_client.rs"), &kit.client_rs)
+                .expect("write sidecar_client.rs");
+            std::fs::write(out_dir.join("MIGRATION.md"), &kit.migration_md)
+                .expect("write MIGRATION.md");
+            eprintln!(
+                "detected {} native module(s); wrote sidecar kit to {}",
+                modules.len(),
+                out_dir.display()
+            );
         }
     }
 }
