@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/core", "crates/cli", "crates/winrt-shim"]
+members = ["crates/core", "crates/cli", "crates/winrt-shim", "crates/webview-qa"]
 
 [workspace.package]
 edition = "2021"

@@ -1,0 +1,18 @@
+[package]
+name = "webview-qa"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[[bin]]
+name = "webview-qa"
+path = "src/main.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = "1"
+clap = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

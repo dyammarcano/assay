@@ -42,7 +42,7 @@ recipes, `todo!()` stubs elsewhere, nothing fabricated for no-path/open-question
 - [x] `docs/ISSUES.md`
 - [~] WinRT capability shim crate (`crates/winrt-shim`) — XML core shipped; windows-rs dispatch next
 - [x] Sidecar native-module migration kit — done (`e3e32a4`): detection + codegen + `sidecar` cmd
-- [ ] Cross-WebView QA harness — spec ready (`docs/superpowers/specs/…webview…`)
+- [x] Cross-WebView QA harness — done: `webview-qa` crate (engine-blob model + differ + `diff` cmd)
 
 ## Guiding invariant
 Public-docs-only. Every capability claim carries a citation; unconfirmed items surface as

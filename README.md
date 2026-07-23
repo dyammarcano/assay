@@ -9,6 +9,7 @@ scaffolds Rust bridge code to close the achievable gaps.
 - `crates/core` — `core`: matrix model, dataset loader, parsers, analyzer, scaffolder.
 - `crates/cli` — `cli`: the `wrap-swap` binary (`report | analyze | scaffold | sidecar`).
 - `crates/winrt-shim` — `winrt-shim`: reusable WinRT capability shim (toast content + XML builder).
+- `crates/webview-qa` — `webview-qa`: cross-WebView divergence differ + `diff` CLI over recorded blobs.
 - `data/matrix.toml` — the cited capability/gap dataset (source of truth).
 
 > Crate names are short and plain, with no project prefix. All crates set `publish = false` —

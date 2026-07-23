@@ -13,9 +13,10 @@ ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Ph
   + `generate_sidecar` (stdio-JSON sidecar skeleton, `SidecarClient`, `MIGRATION.md`) + the
   `wrap-swap sidecar` subcommand. Spec:
   `docs/superpowers/specs/2026-07-23-sidecar-migration-kit-design.md`. (Brief §5.3)
-- **Cross-WebView QA harness** — spec ready:
-  `docs/superpowers/specs/2026-07-23-cross-webview-qa-harness-design.md`. Run the same UI across
-  WebView2/WKWebView/WebKitGTK, diff per-engine signals into a divergence report. (Brief §5.4)
+- [~] **Cross-WebView QA harness** — **core done**: `crates/webview-qa` (`EngineBlob` model +
+  pairwise `diff` + `render_report` + `webview-qa diff` CLI over recorded blobs). Remaining: the
+  live per-engine drivers (WebView2/WKWebView/WebKitGTK) that produce the blobs — host-gated
+  integration. Spec: `docs/superpowers/specs/2026-07-23-cross-webview-qa-harness-design.md`. (Brief §5.4)
 
 ## Open research questions
 - [x] App Services / package-identity RPC — **resolved** (`4d1c950`): AppServiceConnection is
