@@ -1,0 +1,141 @@
+# UWP / WinRT
+[[capabilities]]
+id = "uwp.toast"
+source = "uwp"
+name = "Toast notifications"
+description = "OS notification-center toasts via Windows.UI.Notifications"
+tauri_path = "custom_rust"
+severity = "partial"
+citation_url = "https://docs.rs/tauri-winrt-notification"
+recipe = "proven"
+crate_name = "tauri-winrt-notification"
+
+[[capabilities]]
+id = "uwp.protocol_activation"
+source = "uwp"
+name = "Protocol activation (custom URI scheme)"
+description = "Manifest-declared custom protocol triggers app activation"
+tauri_path = "plugin"
+severity = "full"
+citation_url = "https://v2.tauri.app/plugin/"
+recipe = "proven"
+plugin = "tauri-plugin-deep-link"
+
+[[capabilities]]
+id = "uwp.credential_vault"
+source = "uwp"
+name = "Secure credential storage (PasswordVault)"
+description = "Windows.Security.Credentials.PasswordVault OS-locker-backed storage"
+tauri_path = "plugin"
+severity = "partial"
+citation_url = "https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.passwordvault"
+recipe = "proven"
+plugin = "tauri-plugin-stronghold"
+
+[[capabilities]]
+id = "uwp.background_tasks"
+source = "uwp"
+name = "Background tasks"
+description = "BackgroundTaskBuilder registration, requires package identity"
+tauri_path = "custom_rust"
+severity = "partial"
+citation_url = "https://learn.microsoft.com/en-us/windows/apps/develop/launch/create-and-register-a-background-task"
+
+[[capabilities]]
+id = "uwp.live_tiles"
+source = "uwp"
+name = "Live Tiles"
+description = "Dynamic Start-menu tile content, MSIX-shell-only concept"
+tauri_path = "none"
+severity = "none"
+citation_url = "https://learn.microsoft.com/en-us/windows/uwp/launch-resume/update-a-live-tile-from-a-background-task"
+
+[[capabilities]]
+id = "uwp.share_target"
+source = "uwp"
+name = "Share Target contract"
+description = "Declares app as a share destination for other apps' content"
+tauri_path = "none"
+severity = "none"
+citation_url = "https://learn.microsoft.com/en-us/windows/uwp/app-to-app/receive-data"
+
+[[capabilities]]
+id = "uwp.app_services"
+source = "uwp"
+name = "App services (inter-app RPC)"
+description = "Packaged apps expose RPC-like services to other apps"
+tauri_path = "open_question"
+severity = "none"
+citation_url = "https://learn.microsoft.com/en-us/windows/uwp/launch-resume/how-to-create-and-consume-an-app-service"
+
+# Electron
+[[capabilities]]
+id = "electron.ipc"
+source = "electron"
+name = "Main/renderer IPC"
+description = "ipcMain/ipcRenderer bridge between privileged main and sandboxed renderer"
+tauri_path = "native"
+severity = "full"
+citation_url = "https://www.electronjs.org/docs/latest/tutorial/ipc"
+recipe = "proven"
+
+[[capabilities]]
+id = "electron.tray"
+source = "electron"
+name = "Tray icon + menu"
+description = "Electron.Tray native context menu"
+tauri_path = "native"
+severity = "full"
+citation_url = "https://v2.tauri.app/concept/architecture/"
+recipe = "proven"
+
+[[capabilities]]
+id = "electron.global_shortcut"
+source = "electron"
+name = "Global shortcuts"
+description = "Electron.GlobalShortcut system-wide hotkeys"
+tauri_path = "plugin"
+severity = "full"
+citation_url = "https://v2.tauri.app/plugin/"
+recipe = "proven"
+plugin = "tauri-plugin-global-shortcut"
+
+[[capabilities]]
+id = "electron.auto_update"
+source = "electron"
+name = "Auto-update"
+description = "Electron.AutoUpdater self-update"
+tauri_path = "plugin"
+severity = "full"
+citation_url = "https://v2.tauri.app/plugin/"
+recipe = "proven"
+plugin = "tauri-plugin-updater"
+
+[[capabilities]]
+id = "electron.deep_link"
+source = "electron"
+name = "Deep links / custom protocol"
+description = "open-url (macOS) / argv parsing (Win/Linux)"
+tauri_path = "plugin"
+severity = "full"
+citation_url = "https://v2.tauri.app/plugin/"
+recipe = "proven"
+plugin = "tauri-plugin-deep-link"
+
+[[capabilities]]
+id = "electron.native_module"
+source = "electron"
+name = "Native Node modules"
+description = "In-process N-API/node-gyp native code with full Node/OS access"
+tauri_path = "sidecar"
+severity = "partial"
+citation_url = "https://evilmartians.com/chronicles/making-desktop-apps-with-revved-up-potential-rust-tauri-sidecar"
+
+[[capabilities]]
+id = "electron.power_monitor"
+source = "electron"
+name = "PowerMonitor (sleep/wake/battery)"
+description = "System power-state events"
+tauri_path = "open_question"
+severity = "none"
+citation_url = "https://www.electronjs.org/docs/latest/api/power-monitor"

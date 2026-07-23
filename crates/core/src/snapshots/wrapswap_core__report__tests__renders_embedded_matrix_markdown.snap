@@ -1,0 +1,29 @@
+---
+source: crates/core/src/report.rs
+expression: out
+---
+# UWP/Electron → Tauri v2 Capability & Gap Matrix
+
+## UWP / WinRT
+
+| Capability | Tauri path | Severity | Source |
+|---|---|---|---|
+| Toast notifications | custom Rust command | Partial | [doc](https://docs.rs/tauri-winrt-notification) |
+| Protocol activation (custom URI scheme) | plugin: tauri-plugin-deep-link | Full | [doc](https://v2.tauri.app/plugin/) |
+| Secure credential storage (PasswordVault) | plugin: tauri-plugin-stronghold | Partial | [doc](https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.passwordvault) |
+| Background tasks | custom Rust command | Partial | [doc](https://learn.microsoft.com/en-us/windows/apps/develop/launch/create-and-register-a-background-task) |
+| Live Tiles | **no viable path** | None | [doc](https://learn.microsoft.com/en-us/windows/uwp/launch-resume/update-a-live-tile-from-a-background-task) |
+| Share Target contract | **no viable path** | None | [doc](https://learn.microsoft.com/en-us/windows/uwp/app-to-app/receive-data) |
+| App services (inter-app RPC) | **OPEN QUESTION** | None | [doc](https://learn.microsoft.com/en-us/windows/uwp/launch-resume/how-to-create-and-consume-an-app-service) |
+
+## Electron
+
+| Capability | Tauri path | Severity | Source |
+|---|---|---|---|
+| Main/renderer IPC | native | Full | [doc](https://www.electronjs.org/docs/latest/tutorial/ipc) |
+| Tray icon + menu | native | Full | [doc](https://v2.tauri.app/concept/architecture/) |
+| Global shortcuts | plugin: tauri-plugin-global-shortcut | Full | [doc](https://v2.tauri.app/plugin/) |
+| Auto-update | plugin: tauri-plugin-updater | Full | [doc](https://v2.tauri.app/plugin/) |
+| Deep links / custom protocol | plugin: tauri-plugin-deep-link | Full | [doc](https://v2.tauri.app/plugin/) |
+| Native Node modules | sidecar process | Partial | [doc](https://evilmartians.com/chronicles/making-desktop-apps-with-revved-up-potential-rust-tauri-sidecar) |
+| PowerMonitor (sleep/wake/battery) | **OPEN QUESTION** | None | [doc](https://www.electronjs.org/docs/latest/api/power-monitor) |

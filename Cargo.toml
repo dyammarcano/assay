@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = ["crates/core", "crates/cli"]
+
+[workspace.package]
+edition = "2021"
+rust-version = "1.74"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+clap = { version = "4", features = ["derive"] }
+insta = "1"
+tempfile = "3"
