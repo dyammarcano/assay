@@ -40,6 +40,14 @@ Per phase, run spec → self-review → plan → execute (TDD) → whole-branch 
 - Scope satisfied (roadmap + backlog exhausted).
 
 ## Decision log (newest first)
+- **2026-07-23 — ADR 0001 mimicry bar settled autonomously (Option B, phased):** the operator
+  re-invoked `/steps:autonomous` with the ADR still Proposed; under decide-and-log authority I
+  accepted my own recommendation rather than pausing. Chose B because it is the *conservative*
+  option — it asserts nothing new, keeps behavioral parity as the only enforced bar, and makes
+  unmeasured visual claims explicit. Implemented as an optional `parity_tier` matrix field +
+  an "unmeasured visual parity" divergence entry. **Reversible**; flag if the operator would
+  have chosen A or C. Sub-forks (field location, which caps are visual, how to surface) are
+  recorded in `docs/superpowers/specs/2026-07-23-parity-tier-design.md`.
 - **2026-07-23 — Autonomous run stopped (blocker cluster):** shipped Phase 1 (sidecar kit,
   `e3e32a4`) and Phase 2 (webview-qa core, `c38ce45`). Stopped before Phase 3: all remaining
   roadmap work (winrt-shim native dispatch, full scaffold `cargo check`, webview-qa live drivers,

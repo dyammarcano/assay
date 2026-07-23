@@ -17,6 +17,8 @@ ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Ph
   pairwise `diff` + `render_report` + `webview-qa diff` CLI over recorded blobs). Remaining: the
   live per-engine drivers (WebView2/WKWebView/WebKitGTK) that produce the blobs — host-gated
   integration. Spec: `docs/superpowers/specs/2026-07-23-cross-webview-qa-harness-design.md`. (Brief §5.4)
+  **Now a hard dependency** of ADR 0001: no `visual`-tier capability can be claimed until these
+  drivers exist — every one is reported as "visual parity NOT measured" today.
 
 ## Open research questions
 - [x] App Services / package-identity RPC — **resolved** (`4d1c950`): AppServiceConnection is
@@ -27,8 +29,9 @@ ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Ph
   electronjs.org.
 - [x] PowerMonitor-equivalent Tauri plugin — **resolved** (`4d1c950`): none exists
   (plugins-workspace #990 open); path = `custom_rust` via windows-rs. Matrix row updated.
-- [~] Decide the mimicry bar depth per capability — **ADR drafted**, awaiting operator decision:
-  `docs/adr/0001-mimicry-bar.md` (options A/B/C + recommendation B, phased). (Brief §6)
+- [x] Decide the mimicry bar depth per capability — **accepted & implemented** (ADR 0001,
+  Option B phased): `parity_tier` matrix field + explicit "visual parity NOT measured"
+  divergence. Decided under autonomy charter, reversible. (Brief §6)
 
 ## Deferred hardening (from the plan self-review)
 - [x] Syntactic validity of generated scaffolding — **done** (`4d1c950`): `syn::parse_file`

@@ -1,6 +1,8 @@
 # ADR 0001 — How deep does "responds exactly like the original app" go?
 
-- **Status:** Proposed — awaiting operator decision
+- **Status:** **Accepted** — Option B (phased), 2026-07-23. Decided under the
+  `docs/AUTONOMY.md` charter's decide-and-log authority, **not** by explicit operator choice;
+  reversible (see Reversibility in the phase spec). Flag it if you'd have picked differently.
 - **Date:** 2026-07-23
 - **Context source:** `docs/discovery/IDEA-BRIEF.md` §6 (last open research question), `idea.txt`
 
@@ -69,4 +71,17 @@ guaranteed, which the project's citation/no-fabrication invariants forbid.
 
 ## Decision
 
-_Pending._ Record the chosen option and date here, then set Status to Accepted.
+**Option B (phased), accepted 2026-07-23**, implemented in the same cycle:
+
+- `data/matrix.toml` gained an optional `parity_tier` field (absent = `behavioral`).
+- Six UI-surfacing capabilities are tagged `visual`: `uwp.toast`, `uwp.file_picker`,
+  `electron.tray`, `electron.menu`, `electron.dialog`, `electron.notifications`.
+- `analyze` emits an explicit **"visual parity NOT measured"** divergence for every
+  visual-tier gap, naming the webview-qa live-driver dependency — so an unmeasured claim can
+  never read as passed.
+- `report` shows a Tier column.
+- Behavioral parity remains the only *enforced* bar; nothing new is asserted.
+
+Phase spec: `docs/superpowers/specs/2026-07-23-parity-tier-design.md` (settled forks recorded
+there). Decided autonomously per charter — reverse by dropping the field and its two
+reporting sites.

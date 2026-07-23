@@ -24,14 +24,15 @@ fn path_key(p: TauriPath) -> &'static str {
 
 fn section(out: &mut String, title: &str, src: Source, m: &Matrix) {
     out.push_str(&format!("## {title}\n\n"));
-    out.push_str("| Capability | Tauri path | Severity | Source |\n");
-    out.push_str("|---|---|---|---|\n");
+    out.push_str("| Capability | Tauri path | Severity | Tier | Source |\n");
+    out.push_str("|---|---|---|---|---|\n");
     for c in m.capabilities.iter().filter(|c| c.source == src) {
         out.push_str(&format!(
-            "| {} | {} | {:?} | [doc]({}) |\n",
+            "| {} | {} | {:?} | {:?} | [doc]({}) |\n",
             c.name,
             path_label(c),
             c.severity,
+            c.parity_tier(),
             c.citation_url
         ));
     }

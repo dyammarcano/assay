@@ -33,6 +33,18 @@ pub enum Recipe {
     Stub,
 }
 
+/// How deep the parity promise goes for a capability (ADR 0001).
+///
+/// `Behavioral` = the capability works. `Visual` = it must also look/feel the same, which
+/// requires measurement by the webview-qa harness before it may be claimed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ParityTier {
+    #[default]
+    Behavioral,
+    Visual,
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Capability {
     pub id: String,
@@ -48,6 +60,16 @@ pub struct Capability {
     pub plugin: Option<String>,
     #[serde(default)]
     pub crate_name: Option<String>,
+    /// Absent = [`ParityTier::Behavioral`]. See [`Capability::parity_tier`].
+    #[serde(default)]
+    pub parity_tier: Option<ParityTier>,
+}
+
+impl Capability {
+    /// The resolved parity tier (defaults to `Behavioral` when unset).
+    pub fn parity_tier(&self) -> ParityTier {
+        self.parity_tier.unwrap_or_default()
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -131,6 +153,33 @@ citation_url = "https://learn.microsoft.com/en-us/windows/uwp/launch-resume/upda
         let m = Matrix::embedded();
         assert!(m.get("uwp.toast").is_some());
         assert!(m.get("electron.ipc").is_some());
+    }
+
+    #[test]
+    fn parity_tier_defaults_to_behavioral_when_absent() {
+        let m = Matrix::from_toml(SAMPLE).expect("should parse");
+        // Neither SAMPLE row declares a tier.
+        assert_eq!(
+            m.get("uwp.toast").unwrap().parity_tier(),
+            ParityTier::Behavioral
+        );
+    }
+
+    #[test]
+    fn embedded_matrix_marks_ui_capabilities_visual() {
+        let m = Matrix::embedded();
+        for id in ["uwp.toast", "electron.tray", "electron.menu"] {
+            assert_eq!(
+                m.get(id).unwrap().parity_tier(),
+                ParityTier::Visual,
+                "{id} should be visual tier"
+            );
+        }
+        // A non-UI capability stays behavioral.
+        assert_eq!(
+            m.get("electron.ipc").unwrap().parity_tier(),
+            ParityTier::Behavioral
+        );
     }
 
     #[test]

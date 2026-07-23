@@ -10,34 +10,34 @@ _Legend: **no viable path** = cannot be replicated; **OPEN QUESTION** = unconfir
 
 ## UWP / WinRT
 
-| Capability | Tauri path | Severity | Source |
-|---|---|---|---|
-| Toast notifications | custom Rust command | Partial | [doc](https://docs.rs/tauri-winrt-notification) |
-| Protocol activation (custom URI scheme) | plugin: tauri-plugin-deep-link | Full | [doc](https://v2.tauri.app/plugin/) |
-| Secure credential storage (PasswordVault) | plugin: tauri-plugin-stronghold | Partial | [doc](https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.passwordvault) |
-| Background tasks | custom Rust command | Partial | [doc](https://learn.microsoft.com/en-us/windows/apps/develop/launch/create-and-register-a-background-task) |
-| Live Tiles | **no viable path** | None | [doc](https://learn.microsoft.com/en-us/windows/uwp/launch-resume/update-a-live-tile-from-a-background-task) |
-| Share Target contract | **no viable path** | None | [doc](https://learn.microsoft.com/en-us/windows/uwp/app-to-app/receive-data) |
-| App services (inter-app RPC) | custom Rust command | Partial | [doc](https://learn.microsoft.com/en-us/windows/uwp/launch-resume/how-to-create-and-consume-an-app-service) |
-| File pickers (FileOpen/SavePicker) | plugin: tauri-plugin-dialog | Full | [doc](https://github.com/tauri-apps/plugins-workspace) |
-| Clipboard | plugin: tauri-plugin-clipboard-manager | Full | [doc](https://github.com/tauri-apps/plugins-workspace) |
-| App lifecycle events (suspend/resume) | native | Partial | [doc](https://v2.tauri.app/reference/javascript/api/namespaceevent/) |
+| Capability | Tauri path | Severity | Tier | Source |
+|---|---|---|---|---|
+| Toast notifications | custom Rust command | Partial | Visual | [doc](https://docs.rs/tauri-winrt-notification) |
+| Protocol activation (custom URI scheme) | plugin: tauri-plugin-deep-link | Full | Behavioral | [doc](https://v2.tauri.app/plugin/) |
+| Secure credential storage (PasswordVault) | plugin: tauri-plugin-stronghold | Partial | Behavioral | [doc](https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.passwordvault) |
+| Background tasks | custom Rust command | Partial | Behavioral | [doc](https://learn.microsoft.com/en-us/windows/apps/develop/launch/create-and-register-a-background-task) |
+| Live Tiles | **no viable path** | None | Behavioral | [doc](https://learn.microsoft.com/en-us/windows/uwp/launch-resume/update-a-live-tile-from-a-background-task) |
+| Share Target contract | **no viable path** | None | Behavioral | [doc](https://learn.microsoft.com/en-us/windows/uwp/app-to-app/receive-data) |
+| App services (inter-app RPC) | custom Rust command | Partial | Behavioral | [doc](https://learn.microsoft.com/en-us/windows/uwp/launch-resume/how-to-create-and-consume-an-app-service) |
+| File pickers (FileOpen/SavePicker) | plugin: tauri-plugin-dialog | Full | Visual | [doc](https://github.com/tauri-apps/plugins-workspace) |
+| Clipboard | plugin: tauri-plugin-clipboard-manager | Full | Behavioral | [doc](https://github.com/tauri-apps/plugins-workspace) |
+| App lifecycle events (suspend/resume) | native | Partial | Behavioral | [doc](https://v2.tauri.app/reference/javascript/api/namespaceevent/) |
 
 ## Electron
 
-| Capability | Tauri path | Severity | Source |
-|---|---|---|---|
-| Main/renderer IPC | native | Full | [doc](https://www.electronjs.org/docs/latest/tutorial/ipc) |
-| Tray icon + menu | native | Full | [doc](https://v2.tauri.app/concept/architecture/) |
-| Global shortcuts | plugin: tauri-plugin-global-shortcut | Full | [doc](https://v2.tauri.app/plugin/) |
-| Auto-update | plugin: tauri-plugin-updater | Full | [doc](https://v2.tauri.app/plugin/) |
-| Deep links / custom protocol | plugin: tauri-plugin-deep-link | Full | [doc](https://v2.tauri.app/plugin/) |
-| Native Node modules | sidecar process | Partial | [doc](https://www.electronjs.org/docs/latest/tutorial/using-native-node-modules) |
-| PowerMonitor (sleep/wake/battery) | custom Rust command | Partial | [doc](https://github.com/tauri-apps/plugins-workspace/issues/990) |
-| Clipboard | plugin: tauri-plugin-clipboard-manager | Full | [doc](https://github.com/tauri-apps/plugins-workspace) |
-| Native dialogs (open/save/message) | plugin: tauri-plugin-dialog | Full | [doc](https://github.com/tauri-apps/plugins-workspace) |
-| Notifications | plugin: tauri-plugin-notification | Full | [doc](https://github.com/tauri-apps/plugins-workspace) |
-| Launch at login | plugin: tauri-plugin-autostart | Full | [doc](https://github.com/tauri-apps/plugins-workspace) |
-| Single instance lock | plugin: tauri-plugin-single-instance | Full | [doc](https://github.com/tauri-apps/plugins-workspace) |
-| Application/context menus | native | Full | [doc](https://v2.tauri.app/learn/window-menu/) |
-| File-system access | plugin: tauri-plugin-fs | Full | [doc](https://github.com/tauri-apps/plugins-workspace) |
+| Capability | Tauri path | Severity | Tier | Source |
+|---|---|---|---|---|
+| Main/renderer IPC | native | Full | Behavioral | [doc](https://www.electronjs.org/docs/latest/tutorial/ipc) |
+| Tray icon + menu | native | Full | Visual | [doc](https://v2.tauri.app/concept/architecture/) |
+| Global shortcuts | plugin: tauri-plugin-global-shortcut | Full | Behavioral | [doc](https://v2.tauri.app/plugin/) |
+| Auto-update | plugin: tauri-plugin-updater | Full | Behavioral | [doc](https://v2.tauri.app/plugin/) |
+| Deep links / custom protocol | plugin: tauri-plugin-deep-link | Full | Behavioral | [doc](https://v2.tauri.app/plugin/) |
+| Native Node modules | sidecar process | Partial | Behavioral | [doc](https://www.electronjs.org/docs/latest/tutorial/using-native-node-modules) |
+| PowerMonitor (sleep/wake/battery) | custom Rust command | Partial | Behavioral | [doc](https://github.com/tauri-apps/plugins-workspace/issues/990) |
+| Clipboard | plugin: tauri-plugin-clipboard-manager | Full | Behavioral | [doc](https://github.com/tauri-apps/plugins-workspace) |
+| Native dialogs (open/save/message) | plugin: tauri-plugin-dialog | Full | Visual | [doc](https://github.com/tauri-apps/plugins-workspace) |
+| Notifications | plugin: tauri-plugin-notification | Full | Visual | [doc](https://github.com/tauri-apps/plugins-workspace) |
+| Launch at login | plugin: tauri-plugin-autostart | Full | Behavioral | [doc](https://github.com/tauri-apps/plugins-workspace) |
+| Single instance lock | plugin: tauri-plugin-single-instance | Full | Behavioral | [doc](https://github.com/tauri-apps/plugins-workspace) |
+| Application/context menus | native | Full | Visual | [doc](https://v2.tauri.app/learn/window-menu/) |
+| File-system access | plugin: tauri-plugin-fs | Full | Behavioral | [doc](https://github.com/tauri-apps/plugins-workspace) |

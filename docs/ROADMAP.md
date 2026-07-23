@@ -54,7 +54,8 @@ recipes, `todo!()` stubs elsewhere, nothing fabricated for no-path/open-question
 - [x] `docs/ARCHITECTURE.md` (mermaid: crate graph + all three flows)
 - [x] `examples/` fixtures (UWP manifest, Electron app, profile) + README walkthrough
 - [x] CI workflow (`.github/workflows/ci.yml`: fmt + clippy + test + build)
-- [~] Mimicry-bar decision — ADR drafted, awaiting operator call (`docs/adr/0001-mimicry-bar.md`)
+- [x] Mimicry-bar decision — ADR 0001 **accepted** (Option B, phased) and implemented:
+  `parity_tier` field + "visual parity NOT measured" divergence + report Tier column
 
 ## Remaining — blocked on external prerequisites (autonomous run stopped here)
 These need inputs/runtimes not available in the build environment; each would merge on an

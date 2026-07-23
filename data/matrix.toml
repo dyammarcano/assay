@@ -9,6 +9,7 @@ severity = "partial"
 citation_url = "https://docs.rs/tauri-winrt-notification"
 recipe = "proven"
 crate_name = "tauri-winrt-notification"
+parity_tier = "visual"
 
 [[capabilities]]
 id = "uwp.protocol_activation"
@@ -88,6 +89,7 @@ tauri_path = "native"
 severity = "full"
 citation_url = "https://v2.tauri.app/concept/architecture/"
 recipe = "proven"
+parity_tier = "visual"
 
 [[capabilities]]
 id = "electron.global_shortcut"
@@ -161,6 +163,7 @@ severity = "full"
 citation_url = "https://github.com/tauri-apps/plugins-workspace"
 recipe = "proven"
 plugin = "tauri-plugin-dialog"
+parity_tier = "visual"
 
 [[capabilities]]
 id = "electron.notifications"
@@ -172,6 +175,7 @@ severity = "full"
 citation_url = "https://github.com/tauri-apps/plugins-workspace"
 recipe = "proven"
 plugin = "tauri-plugin-notification"
+parity_tier = "visual"
 
 [[capabilities]]
 id = "electron.autostart"
@@ -204,6 +208,7 @@ tauri_path = "native"
 severity = "full"
 citation_url = "https://v2.tauri.app/learn/window-menu/"
 recipe = "proven"
+parity_tier = "visual"
 
 [[capabilities]]
 id = "electron.fs_access"
@@ -226,6 +231,7 @@ severity = "full"
 citation_url = "https://github.com/tauri-apps/plugins-workspace"
 recipe = "proven"
 plugin = "tauri-plugin-dialog"
+parity_tier = "visual"
 
 [[capabilities]]
 id = "uwp.clipboard"
