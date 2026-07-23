@@ -41,7 +41,7 @@ recipes, `todo!()` stubs elsewhere, nothing fabricated for no-path/open-question
 - [x] `report --source uwp|electron` filter + per-path summary rollup + legend
 - [x] `docs/ISSUES.md`
 - [~] WinRT capability shim crate (`crates/winrt-shim`) — XML core shipped; windows-rs dispatch next
-- [ ] Sidecar native-module migration kit — spec ready (`docs/superpowers/specs/…sidecar…`)
+- [x] Sidecar native-module migration kit — done (`e3e32a4`): detection + codegen + `sidecar` cmd
 - [ ] Cross-WebView QA harness — spec ready (`docs/superpowers/specs/…webview…`)
 
 ## Guiding invariant

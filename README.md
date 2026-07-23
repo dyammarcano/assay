@@ -28,6 +28,9 @@ cargo run -p cli -- analyze --electron-pkg package.json --electron-main main.js
 
 # Emit Rust/Tauri bridge scaffolding (bridge.rs + deps.txt) for a profile's gaps
 cargo run -p cli -- scaffold --profile profile.toml --out-dir wrap-swap-out
+
+# Detect Electron native modules and scaffold a stdio-JSON sidecar migration kit
+cargo run -p cli -- sidecar --electron-pkg package.json --out-dir sidecar-out
 ```
 
 A capability profile is TOML:

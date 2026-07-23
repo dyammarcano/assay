@@ -9,9 +9,10 @@ ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Ph
   `ToastShim` trait + tested `ToastGeneric` XML builder shipped. Remaining: bind `to_xml()` to
   `ToastNotificationManager` via `windows-rs` (needs a registered AppUserModelID), and extend to
   tile/background-task/PasswordVault-equivalent calls. (Brief §5.2)
-- **Sidecar-based native-module migration kit** — spec ready:
-  `docs/superpowers/specs/2026-07-23-sidecar-migration-kit-design.md`. Detect Electron native
-  modules → scaffold a stdio-JSON sidecar + Tauri client + migration checklist. (Brief §5.3)
+- [x] **Sidecar-based native-module migration kit** — **done** (`e3e32a4`): `detect_native_modules`
+  + `generate_sidecar` (stdio-JSON sidecar skeleton, `SidecarClient`, `MIGRATION.md`) + the
+  `wrap-swap sidecar` subcommand. Spec:
+  `docs/superpowers/specs/2026-07-23-sidecar-migration-kit-design.md`. (Brief §5.3)
 - **Cross-WebView QA harness** — spec ready:
   `docs/superpowers/specs/2026-07-23-cross-webview-qa-harness-design.md`. Run the same UI across
   WebView2/WKWebView/WebKitGTK, diff per-engine signals into a divergence report. (Brief §5.4)
