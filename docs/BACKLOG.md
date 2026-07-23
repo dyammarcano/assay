@@ -5,26 +5,33 @@ Deferred ideas and follow-up work — sourced from `docs/discovery/IDEA-BRIEF.md
 ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Phases 1-3).
 
 ## Deferred features (runner-up ideas)
-- **WinRT capability shim crate** — a reusable `windows-rs`-backed Rust crate exposing
-  toast/tile/background-task/PasswordVault-equivalent calls behind a stable API, generalizing
-  the `tauri-winrt-notification`/`winrt-toast` pattern. (Brief §5.2)
-- **Sidecar-based native-module migration kit** — tooling to detect Electron native-module
-  usage and scaffold a sidecar-process replacement (stdout-port-handoff pattern) instead of
-  hand-porting each module. (Brief §5.3)
-- **Cross-WebView QA harness** — run the same UI across WebView2/WKWebView/WebKitGTK to catch
-  rendering/JS divergence before it undermines seamless mimicry. (Brief §5.4)
+- [~] **WinRT capability shim crate** — **started** (`crates/winrt-shim`): `ToastContent` +
+  `ToastShim` trait + tested `ToastGeneric` XML builder shipped. Remaining: bind `to_xml()` to
+  `ToastNotificationManager` via `windows-rs` (needs a registered AppUserModelID), and extend to
+  tile/background-task/PasswordVault-equivalent calls. (Brief §5.2)
+- **Sidecar-based native-module migration kit** — spec ready:
+  `docs/superpowers/specs/2026-07-23-sidecar-migration-kit-design.md`. Detect Electron native
+  modules → scaffold a stdio-JSON sidecar + Tauri client + migration checklist. (Brief §5.3)
+- **Cross-WebView QA harness** — spec ready:
+  `docs/superpowers/specs/2026-07-23-cross-webview-qa-harness-design.md`. Run the same UI across
+  WebView2/WKWebView/WebKitGTK, diff per-engine signals into a divergence report. (Brief §5.4)
 
-## Open research questions (resolve before committing an approach)
-- Confirm the App Services / package-identity RPC model with a docs.microsoft.com citation and
-  whether any Tauri analog is architecturally possible for non-MSIX apps. (Brief §6)
-- Confirm current Electron native-module compatibility posture (fresh electronjs.org citation)
-  to size the native-module migration problem. (Brief §6)
-- Confirm whether any official/community Tauri plugin covers PowerMonitor-equivalent power
-  events. (Brief §6)
+## Open research questions
+- [x] App Services / package-identity RPC — **resolved** (`4d1c950`): AppServiceConnection is
+  keyed on MSIX PackageFamilyName; path = `custom_rust` under an MSIX-packaged build, `none`
+  for a plain-exe app. Matrix row updated + cited.
+- [x] Electron native-module compatibility posture — **resolved** (`4d1c950`): different ABI
+  from Node, must be recompiled/reimplemented; matrix `native_module` row re-cited to
+  electronjs.org.
+- [x] PowerMonitor-equivalent Tauri plugin — **resolved** (`4d1c950`): none exists
+  (plugins-workspace #990 open); path = `custom_rust` via windows-rs. Matrix row updated.
 - Decide the mimicry bar depth per capability: behavior-only vs. interaction/visual parity —
   the WebView-divergence finding bounds how far "exactly like the original" can go. (Brief §6)
 
 ## Deferred hardening (from the plan self-review)
-- Full temp-crate `cargo check` of generated scaffolding (Tasks 9-10 assert syntactically only).
+- [x] Syntactic validity of generated scaffolding — **done** (`4d1c950`): `syn::parse_file`
+  test proves `bridge.rs` is valid Rust. (Full temp-crate `cargo check` — which needs the real
+  tauri + plugin deps — remains deferred below.)
+- Full temp-crate `cargo check` of generated scaffolding (needs tauri + plugin deps resolvable).
 - Run `/unravel:*` RE workers against a concrete pilot binary to validate the matrix against a
   real app (none was supplied at discovery time).
