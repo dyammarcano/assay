@@ -79,6 +79,16 @@ enum Commands {
         #[arg(long)]
         running: bool,
     },
+    /// Run the complete flow for an app: detects UWP vs Electron and takes the matching path
+    Run {
+        /// Installed app to process, resolved via `discover` (e.g. --app instagram)
+        #[arg(long)]
+        app: String,
+        #[arg(long, default_value = "assay-run")]
+        out_dir: PathBuf,
+        #[arg(long)]
+        matrix: Option<PathBuf>,
+    },
     /// Port a hosted-PWA package to a runnable Tauri v2 project
     Port {
         /// Installed app to port, resolved via `discover` (e.g. --app instagram)
@@ -449,6 +459,87 @@ fn run() -> Result<()> {
                 "cannot write deps.txt",
             )?;
             eprintln!("wrote bridge.rs + deps.txt to {}", out_dir.display());
+        }
+        Commands::Run {
+            app,
+            out_dir,
+            matrix,
+        } => {
+            let m = load_matrix(&matrix)?;
+            let found = resolve_one_app(&app)?;
+            eprintln!(
+                "resolved '{}' to {} ({}) at {}",
+                app,
+                found.display_name,
+                found.kind.as_str(),
+                found.install_root.display()
+            );
+
+            // The kind selects the flow. This is the whole point: the two paths are different
+            // problems, not two settings of one problem.
+            let result = match found.kind {
+                AppKind::Uwp => {
+                    let path = found.manifest.as_ref().ok_or_else(|| {
+                        format!(
+                            "'{}' has no readable AppxManifest.xml: {}",
+                            found.display_name,
+                            found.blocker().unwrap_or_else(|| "unknown".into())
+                        )
+                    })?;
+                    corelib::run_uwp_flow(
+                        &m,
+                        &corelib::UwpInput {
+                            app_name: found.display_name.clone(),
+                            manifest_xml: read_file(path, "cannot read AppxManifest.xml")?,
+                        },
+                    )
+                }
+                AppKind::Electron => {
+                    let pkg = match &found.package_json {
+                        Some(p) => read_file(p, "cannot read package.json")?,
+                        // A packed app still runs the flow: the report explains what was
+                        // unavailable rather than the command simply refusing.
+                        None => "{}".to_string(),
+                    };
+                    let (src, count) = match &found.main_dir {
+                        Some(d) => read_electron_main(d)?,
+                        None => (String::new(), 0),
+                    };
+                    corelib::run_electron_flow(
+                        &m,
+                        &corelib::ElectronInput {
+                            app_name: found.display_name.clone(),
+                            package_json: pkg,
+                            main_source: src,
+                            file_count: count,
+                            packed_asar: found.asar.clone(),
+                        },
+                    )
+                }
+            };
+
+            std::fs::create_dir_all(&out_dir)
+                .map_err(|e| format!("cannot create --out-dir ({}): {e}", out_dir.display()))?;
+            result
+                .write_to(&out_dir)
+                .map_err(|e| format!("cannot write output to {}: {e}", out_dir.display()))?;
+
+            eprintln!("\n{} flow — {}", result.kind, result.app_name);
+            for step in &result.steps {
+                eprintln!("  [{}] {} — {}", step.status.label(), step.name, step.status.detail());
+            }
+            eprintln!(
+                "\n{} artifact(s) + REPORT.md written to {}",
+                result.artifacts.len(),
+                out_dir.display()
+            );
+            let blocked = result.blocked();
+            if !blocked.is_empty() {
+                eprintln!(
+                    "\n{} step(s) BLOCKED — the results are incomplete, see REPORT.md",
+                    blocked.len()
+                );
+            }
         }
         Commands::Port {
             app,

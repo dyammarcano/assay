@@ -1,5 +1,6 @@
 pub mod analyze;
 pub mod discover;
+pub mod flow;
 pub mod matrix;
 pub mod parse;
 pub mod profile;
@@ -10,6 +11,7 @@ pub mod sidecar;
 
 pub use analyze::{analyze, render_divergence, Analysis, DivergenceItem, GapItem};
 pub use discover::{discover, AppKind, DiscoverOptions, InstalledApp};
+pub use flow::{run_electron_flow, run_uwp_flow, ElectronInput, FlowResult, Step, StepStatus, UwpInput};
 pub use matrix::{
     Capability, Matrix, MatrixError, ParityTier, Recipe, Severity, Source, TauriPath,
 };

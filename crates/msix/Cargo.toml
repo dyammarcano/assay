@@ -1,0 +1,12 @@
+[package]
+name = "msix"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+serde = { workspace = true }
+# Streaming XML parser for AppxManifest.xml (Go encoding/xml equivalent, with the
+# custom capability-ordering token walk).
+quick-xml = "0.36"
