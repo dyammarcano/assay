@@ -44,7 +44,7 @@ fn directory_scan_finds_capabilities_spread_across_files() {
     .unwrap();
 
     let pkg = pkg_json();
-    let out = Command::new(env!("CARGO_BIN_EXE_wrap-swap"))
+    let out = Command::new(env!("CARGO_BIN_EXE_assay"))
         .arg("analyze")
         .arg("--electron-pkg")
         .arg(pkg.path())
@@ -80,7 +80,7 @@ fn single_file_run_warns_that_it_is_partial() {
     std::fs::write(&main, "const { Tray } = require('electron');").unwrap();
 
     let pkg = pkg_json();
-    let out = Command::new(env!("CARGO_BIN_EXE_wrap-swap"))
+    let out = Command::new(env!("CARGO_BIN_EXE_assay"))
         .arg("analyze")
         .arg("--electron-pkg")
         .arg(pkg.path())
@@ -98,7 +98,7 @@ fn single_file_run_warns_that_it_is_partial() {
 
 #[test]
 fn version_flag_works() {
-    let out = Command::new(env!("CARGO_BIN_EXE_wrap-swap"))
+    let out = Command::new(env!("CARGO_BIN_EXE_assay"))
         .arg("--version")
         .output()
         .expect("run --version");

@@ -1,5 +1,5 @@
-// Fixture Electron main process for wrap-swap demos.
-// Exercises the API surface wrap-swap's parser detects — it is not a runnable app.
+// Fixture Electron main process for assay demos.
+// Exercises the API surface assay's parser detects — it is not a runnable app.
 const { app, BrowserWindow, Tray, Menu, ipcMain, globalShortcut, dialog, powerMonitor } =
   require('electron');
 const { autoUpdater } = require('electron-updater');

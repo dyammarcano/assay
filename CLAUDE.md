@@ -1,4 +1,4 @@
-# CLAUDE.md — wrap-swap
+# CLAUDE.md — Assay
 <!-- rev:001 (RFC 3339) 2026-07-23T00:00:00Z -->
 
 Claude Code entry point for this repo. The canonical, cross-tool instructions live in

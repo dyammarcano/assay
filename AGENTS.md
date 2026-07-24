@@ -1,7 +1,7 @@
-# AGENTS.md — wrap-swap
+# AGENTS.md — Assay
 <!-- rev:001 (RFC 3339) 2026-07-23T00:00:00Z -->
 
-Project-specific agent instructions for **wrap-swap**, a UWP/Electron → Tauri v2 parity
+Project-specific agent instructions for **Assay**, a UWP/Electron → Tauri v2 parity
 toolkit. Global rules come from `~/.claude/AGENTS.md`; this file adds what's specific here
 and wins on conflict within this repo.
 
@@ -16,7 +16,7 @@ achievable gaps — reporting the rest honestly instead of faking them.
 | Path | Crate | Responsibility |
 |---|---|---|
 | `crates/core` | `core` | matrix model + dataset loader, parsers, analyzer, scaffolder, sidecar codegen |
-| `crates/cli` | `cli` | the `wrap-swap` binary (`report`/`analyze`/`scaffold`/`sidecar`) |
+| `crates/cli` | `cli` | the `assay` binary (`report`/`analyze`/`scaffold`/`sidecar`) |
 | `crates/winrt-shim` | `winrt-shim` | reusable WinRT capability shim (toast content + XML) |
 | `crates/webview-qa` | `webview-qa` | cross-WebView divergence differ + `diff` CLI |
 | `data/matrix.toml` | — | the cited capability/gap dataset (source of truth) |

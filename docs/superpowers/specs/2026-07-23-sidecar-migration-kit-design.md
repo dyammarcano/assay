@@ -40,9 +40,9 @@ Vec<NativeModule>`:
 3. `MIGRATION.md` — one row per module: name, why flagged, has-prebuilds, and the decision
    (reimplement-in-Rust vs keep-as-sidecar), left for the developer.
 
-## CLI surface (new subcommand on `wrap-swap`)
+## CLI surface (new subcommand on `assay`)
 
-`wrap-swap sidecar --electron-pkg package.json [--node-modules ./node_modules] --out-dir sidecar-out`
+`assay sidecar --electron-pkg package.json [--node-modules ./node_modules] --out-dir sidecar-out`
 → writes the three artifacts; prints the module count and the honesty note that all handlers are
 stubs (no logic is ported).
 

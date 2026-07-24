@@ -1,4 +1,4 @@
-# wrap-swap — Autonomy Charter
+# Assay — Autonomy Charter
 <!-- rev:001 (RFC 3339) 2026-07-23T00:00:00Z -->
 
 Standing authority for `/steps:autonomous`, granted by the operator on 2026-07-23.

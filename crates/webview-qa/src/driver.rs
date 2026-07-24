@@ -305,7 +305,7 @@ pub fn write_fixture_page(dir: &Path) -> std::io::Result<String> {
         &file,
         "<!doctype html><html><head><meta charset=\"utf-8\"><title>wvqa</title>\
 <style>body{font-family:system-ui;font-size:16px}</style></head>\
-<body><p>wrap-swap webview-qa fixture</p></body></html>",
+<body><p>assay webview-qa fixture</p></body></html>",
     )?;
     Ok(format!(
         "file:///{}",

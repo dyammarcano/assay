@@ -9,7 +9,7 @@ fn analyze_manual_profile_reports_gaps_and_divergence() {
         "source = \"uwp\"\ncapabilities = [\"uwp.toast\", \"uwp.live_tiles\"]\n"
     )
     .unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_wrap-swap"))
+    let out = Command::new(env!("CARGO_BIN_EXE_assay"))
         .arg("analyze")
         .arg("--profile")
         .arg(f.path())

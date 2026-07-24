@@ -1,4 +1,4 @@
-# wrap-swap Backlog
+# Assay Backlog
 <!-- rev:002 (RFC 3339) 2026-07-23T00:00:00Z -->
 
 ## Frozen — out of scope until Windows is done (2026-07-23)
@@ -19,7 +19,7 @@ ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Ph
   tile/background-task/PasswordVault-equivalent calls. (Brief §5.2)
 - [x] **Sidecar-based native-module migration kit** — **done** (`e3e32a4`): `detect_native_modules`
   + `generate_sidecar` (stdio-JSON sidecar skeleton, `SidecarClient`, `MIGRATION.md`) + the
-  `wrap-swap sidecar` subcommand. Spec:
+  `assay sidecar` subcommand. Spec:
   `docs/superpowers/specs/2026-07-23-sidecar-migration-kit-design.md`. (Brief §5.3)
 - [~] **Cross-WebView QA harness** — core + **Chromium driver done**: `crates/webview-qa`
   (`EngineBlob` + pairwise `diff` + `render_report` + `probe`/`capture`/`diff` CLI, and a real

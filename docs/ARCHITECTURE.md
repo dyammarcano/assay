@@ -1,4 +1,4 @@
-# wrap-swap Architecture
+# Assay Architecture
 <!-- rev:001 (RFC 3339) 2026-07-23T00:00:00Z -->
 
 Four crates in one cargo workspace. `core` holds all logic and is data-driven off
@@ -11,7 +11,7 @@ tools that close specific gaps the matrix identifies.
 graph TD
     matrix[("data/matrix.toml<br/>cited capability dataset")]
     core["core<br/>matrix · parse · analyze<br/>scaffold · sidecar · report"]
-    cli["cli<br/>bin: wrap-swap"]
+    cli["cli<br/>bin: assay"]
     shim["winrt-shim<br/>toast content + XML"]
     wvqa["webview-qa<br/>probe · diff · report"]
 

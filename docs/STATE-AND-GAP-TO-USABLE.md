@@ -1,7 +1,7 @@
-# wrap-swap — State & Gap to Usable
+# Assay — State & Gap to Usable
 
 **Date:** 2026-07-24 · **HEAD:** `39f0bfe` (19 commits) · **Version:** 0.1.0 (untagged)
-**Type:** Rust cargo workspace → two developer CLIs (`wrap-swap`, `webview-qa`)
+**Type:** Rust cargo workspace → two developer CLIs (`assay`, `webview-qa`)
 
 ## TL;DR
 
@@ -12,7 +12,7 @@
 - **Nobody can actually install it.** No remote, no tags, no release, no `CHANGELOG.md`, and
   crates.io is permanently excluded by operator policy (`publish = false` everywhere). The only
   way to run it today is `git clone` + `cargo run -p cli -- …`.
-- **`wrap-swap --version` fails** (`error: unexpected argument '--version'`) — verified, not
+- **`assay --version` fails** (`error: unexpected argument '--version'`) — verified, not
   assumed. Basic table stakes for a distributable CLI.
 - **The single biggest capability risk: `analyze` reads exactly ONE Electron main file.** Real
   Electron apps split the main process across many files, so on a real app it will
@@ -26,7 +26,7 @@
 
 ### Capability surface (verified via `--help` and smoke runs)
 
-`wrap-swap` (bin from `crates/cli`, package `cli`):
+`assay` (bin from `crates/cli`, package `cli`):
 
 | Command | Does | State |
 |---|---|---|
@@ -68,7 +68,7 @@ executing a Tauri port. They have never seen this repo. They may or may not have
 with citations, not guesses — and generate the bridge code for the ones it can."*
 
 **Usable v1** = that developer can:
-1. **Install in one step** — get `wrap-swap` runnable without learning the repo's crate layout.
+1. **Install in one step** — get `assay` runnable without learning the repo's crate layout.
 2. **Follow a quickstart to a first useful result** — pointed at **their own app**, not at our
    fixtures, and get a gap report they understand.
 3. **Trust it on Windows** — the output is not silently incomplete, and the limits are stated
@@ -90,7 +90,7 @@ critical path.
 │ Capability       │ `analyze --electron-main` takes ONE file; real Electron   │ Blocker  │ Medium │
 │ (MUST)           │ main processes span many files → silent under-reporting.  │          │        │
 ├──────────────────┼──────────────────────────────────────────────────────────┼──────────┼────────┤
-│ Distribution     │ `wrap-swap --version` errors out (no clap `version`).     │ Major    │ Quick  │
+│ Distribution     │ `assay --version` errors out (no clap `version`).     │ Major    │ Quick  │
 │ (MUST)           │ Blocks bug reports and reproducibility.                   │          │        │
 ├──────────────────┼──────────────────────────────────────────────────────────┼──────────┼────────┤
 │ Docs / UX        │ Quickstart is a repo-developer flow (`cargo run -p cli`)  │ Major    │ Quick  │
@@ -138,7 +138,7 @@ Ordered. Items 1–4 need nothing from anyone; 5–6 need an operator decision.
    `cargo install --path crates/cli` as the supported install and drop the "one-command" claim
    from the definition of usable. *(Medium, gated)*
 6. **Tag `v0.1.0` + add `CHANGELOG.md`**, once (5) is decided. If (a), attach a prebuilt
-   `wrap-swap.exe` to the release so non-Rust users are served at all. *(Medium, gated)*
+   `assay.exe` to the release so non-Rust users are served at all. *(Medium, gated)*
 
 ## Explicitly deferred / out of scope
 
@@ -156,8 +156,8 @@ Not on the path — absent **by decision**, so don't read them as accidental omi
 
 ## Definition of Done for "Usable v1"
 
-- [x] `wrap-swap --version` and `webview-qa --version` both print the version.
-      *(verified: `wrap-swap 0.1.0`)*
+- [x] `assay --version` and `webview-qa --version` both print the version.
+      *(verified: `assay 0.1.0`)*
 - [x] A documented install command that a fresh user can run, **verified by actually running
       it** — `cargo install --path crates/cli` exits 0 and produces a working binary. Verified
       via `--root <temp>` so the operator's `~/.cargo/bin` was not modified.

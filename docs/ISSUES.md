@@ -1,4 +1,4 @@
-# wrap-swap Known Issues & Limitations
+# Assay Known Issues & Limitations
 <!-- rev:001 (RFC 3339) 2026-07-23T00:00:00Z -->
 
 Known bugs, limitations, and honest caveats. Feature gaps live in `docs/BACKLOG.md`;

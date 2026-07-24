@@ -6,7 +6,7 @@
 
 ## Goal
 
-Record, per capability, whether wrap-swap promises only that it **works** (`behavioral`) or
+Record, per capability, whether assay promises only that it **works** (`behavioral`) or
 also that it **looks/feels the same** (`visual`) — and make an unmeasured `visual` claim
 *visible* rather than silently implied. Behavioral parity remains the enforced bar today;
 visual-tier measurement switches on when the `webview-qa` live drivers land.

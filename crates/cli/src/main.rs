@@ -12,7 +12,7 @@ const EXIT_USAGE: i32 = 2;
 
 #[derive(Parser)]
 #[command(
-    name = "wrap-swap",
+    name = "assay",
     version,
     about = "UWP/Electron \u{2192} Tauri parity toolkit"
 )]
@@ -60,7 +60,7 @@ enum Commands {
         electron_pkg: Option<PathBuf>,
         #[arg(long)]
         electron_main: Option<PathBuf>,
-        #[arg(long, default_value = "wrap-swap-out")]
+        #[arg(long, default_value = "assay-out")]
         out_dir: PathBuf,
     },
     /// Detect Electron native modules and scaffold a sidecar migration kit

@@ -10,7 +10,7 @@ fn scaffold_writes_bridge_and_deps() {
         "source = \"electron\"\ncapabilities = [\"electron.global_shortcut\"]\n"
     )
     .unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_wrap-swap"))
+    let out = Command::new(env!("CARGO_BIN_EXE_assay"))
         .arg("scaffold")
         .arg("--profile")
         .arg(f.path())

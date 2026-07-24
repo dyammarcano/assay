@@ -119,6 +119,6 @@ with **no direct Tauri equivalent** (see §4), which bound how seamless a port c
 
 ## 7. Evidence
 
-All findings trace to: `C:\Users\dyamm\AppData\Local\Temp\claude\D--new-page-wrap-swap\6b2c3c7c-60de-4fdd-b0f0-b3c31d1f8047\scratchpad\web-research-uwp-electron-tauri.md`
+All findings trace to: `C:\Users\dyamm\AppData\Local\Temp\claude\D--new-page-assay\6b2c3c7c-60de-4fdd-b0f0-b3c31d1f8047\scratchpad\web-research-uwp-electron-tauri.md`
 (raw web-research citations, one researcher pass covering UWP/WinRT, Electron, Tauri v2
 plugins, windows-rs, and prior-art/migration-guide dimensions per the questionnaire).

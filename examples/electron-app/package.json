@@ -2,7 +2,7 @@
   "name": "example-electron-app",
   "version": "1.0.0",
   "main": "main.js",
-  "description": "Fixture Electron app for wrap-swap demos (not a real app).",
+  "description": "Fixture Electron app for assay demos (not a real app).",
   "dependencies": {
     "serialport": "^12.0.0",
     "keytar": "^7.9.0",

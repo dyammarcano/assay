@@ -6,7 +6,7 @@ rust-version.workspace = true
 publish = false
 
 [[bin]]
-name = "wrap-swap"
+name = "assay"
 path = "src/main.rs"
 
 [dependencies]

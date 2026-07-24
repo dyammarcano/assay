@@ -1,9 +1,9 @@
-# wrap-swap
+# Assay
 <!-- rev:002 (RFC 3339) 2026-07-24T01:19:21Z -->
 
 **Porting a Windows Electron or UWP app to Tauri v2? Find out what breaks before you start.**
 
-`wrap-swap` reads your app, tells you which of its OS-integration capabilities Tauri can and
+`assay` reads your app, tells you which of its OS-integration capabilities Tauri can and
 cannot do — **every answer cited to a public doc, never guessed** — and generates the Rust
 bridge code for the ones it can.
 
@@ -13,11 +13,11 @@ Requires [Rust](https://rustup.rs) (1.74+). This crate is **not published to cra
 install it from a clone:
 
 ```sh
-git clone <this-repo> wrap-swap
-cd wrap-swap
-cargo install --path crates/cli        # installs the `wrap-swap` binary
+git clone <this-repo> assay
+cd assay
+cargo install --path crates/cli        # installs the `assay` binary
 cargo install --path crates/webview-qa # optional: the WebView divergence harness
-wrap-swap --version
+assay --version
 ```
 
 Prefer not to install? Every command below also works in-repo as
@@ -31,7 +31,7 @@ Give it your `package.json` and your **main-process directory** (not just `main.
 [Known limits](#known-limits)):
 
 ```sh
-wrap-swap analyze --electron-pkg ./package.json --electron-main ./src/main
+assay analyze --electron-pkg ./package.json --electron-main ./src/main
 ```
 
 You get two things: a **gap list** (what Tauri can do and how) and a **known-divergence
@@ -54,33 +54,33 @@ report** (what it can't, and why). Roughly:
 Then generate the bridge code for the achievable gaps:
 
 ```sh
-wrap-swap scaffold --electron-pkg ./package.json --electron-main ./src/main --out-dir bridge
+assay scaffold --electron-pkg ./package.json --electron-main ./src/main --out-dir bridge
 ```
 
 `bridge/bridge.rs` wires the plugins that are proven drop-ins; `bridge/deps.txt` lists the exact
 crates to add. Native Node modules get their own migration kit:
 
 ```sh
-wrap-swap sidecar --electron-pkg ./package.json --out-dir sidecar
+assay sidecar --electron-pkg ./package.json --out-dir sidecar
 ```
 
 ### UWP
 
 ```sh
-wrap-swap analyze --appx ./AppxManifest.xml --emit-profile my-profile.toml
+assay analyze --appx ./AppxManifest.xml --emit-profile my-profile.toml
 ```
 
 `--emit-profile` saves what was detected so you can **edit it** — add capabilities the manifest
 doesn't declare, drop ones you don't use — then feed it back:
 
 ```sh
-wrap-swap analyze  --profile my-profile.toml
-wrap-swap scaffold --profile my-profile.toml --out-dir bridge
+assay analyze  --profile my-profile.toml
+assay scaffold --profile my-profile.toml --out-dir bridge
 ```
 
 ### Just browsing?
 
-`wrap-swap report` prints the whole cited matrix with no input at all
+`assay report` prints the whole cited matrix with no input at all
 (`--source uwp|electron` to narrow it).
 
 ## Known limits
@@ -135,7 +135,7 @@ cargo run -p cli -- report --source uwp
 cargo run -p cli -- analyze --appx examples/uwp-app/AppxManifest.xml
 cargo run -p cli -- analyze --electron-pkg examples/electron-app/package.json \
     --electron-main examples/electron-app/main.js
-cargo run -p cli -- scaffold --profile examples/profile-uwp.toml --out-dir wrap-swap-out
+cargo run -p cli -- scaffold --profile examples/profile-uwp.toml --out-dir assay-out
 cargo run -p cli -- sidecar --electron-pkg examples/electron-app/package.json --out-dir sidecar-out
 ```
 
@@ -153,7 +153,7 @@ capabilities = ["electron.tray", "electron.global_shortcut"]
 ## Layout
 
 - `crates/core` — package `core`: matrix model, dataset loader, parsers, analyzer, scaffolder.
-- `crates/cli` — the `wrap-swap` binary (`report | analyze | scaffold | sidecar`).
+- `crates/cli` — the `assay` binary (`report | analyze | scaffold | sidecar`).
 - `crates/winrt-shim` — reusable WinRT capability shim (toast content + XML builder).
 - `crates/webview-qa` — the `webview-qa` binary: probe, live capture, divergence differ.
 - `data/matrix.toml` — the cited capability/gap dataset (source of truth).

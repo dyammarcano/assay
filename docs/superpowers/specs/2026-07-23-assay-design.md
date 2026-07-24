@@ -1,4 +1,4 @@
-# wrap-swap — UWP/Electron → Tauri Parity Toolkit — Design
+# Assay — UWP/Electron → Tauri Parity Toolkit — Design
 
 **Date:** 2026-07-23
 **Status:** Approved (brainstorming)
@@ -8,7 +8,7 @@
 
 Apps built as UWP (WinRT/XAML/WinUI) or Electron carry a large surface of
 OS-integration features that a naive "port the UI to Tauri" effort silently drops.
-`wrap-swap` is a Rust toolkit that (1) ships an evidence-backed, **public-docs-cited**
+`assay` is a Rust toolkit that (1) ships an evidence-backed, **public-docs-cited**
 capability/gap matrix (UWP + Electron → Tauri v2), (2) analyzes a given app's used
 capabilities against that matrix, and (3) scaffolds Rust/Tauri bridge code to close the
 achievable gaps — while honestly reporting the gaps that have no viable path.
@@ -30,7 +30,7 @@ achievable gaps — while honestly reporting the gaps that have no viable path.
 ## Architecture
 
 ```
-wrap-swap/
+assay/
 ├─ crates/
 │  ├─ wrapswap-core/     # matrix model, dataset loader, analyzer, divergence engine
 │  └─ wrapswap-cli/      # clap CLI: report | analyze | scaffold

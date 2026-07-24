@@ -1,4 +1,5 @@
 /target
 **/*.rs.bk
 .scripts/
-wrap-swap-out/
+assay-out/
+/build

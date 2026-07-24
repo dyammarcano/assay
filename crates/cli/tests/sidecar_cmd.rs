@@ -10,7 +10,7 @@ fn sidecar_writes_kit_for_native_modules() {
         r#"{{"dependencies":{{"serialport":"^12","left-pad":"1"}}}}"#
     )
     .unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_wrap-swap"))
+    let out = Command::new(env!("CARGO_BIN_EXE_assay"))
         .arg("sidecar")
         .arg("--electron-pkg")
         .arg(pkg.path())
