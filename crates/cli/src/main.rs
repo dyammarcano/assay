@@ -79,6 +79,17 @@ enum Commands {
         #[arg(long)]
         running: bool,
     },
+    /// Port a hosted-PWA package to a runnable Tauri v2 project
+    Port {
+        /// Installed app to port, resolved via `discover` (e.g. --app instagram)
+        #[arg(long)]
+        app: Option<String>,
+        /// Or point straight at an AppxManifest.xml
+        #[arg(long)]
+        appx: Option<PathBuf>,
+        #[arg(long, default_value = "tauri-port")]
+        out_dir: PathBuf,
+    },
     /// Detect Electron native modules and scaffold a sidecar migration kit
     Sidecar {
         #[arg(long)]
@@ -242,6 +253,50 @@ fn render_discovery(apps: &[InstalledApp]) {
     println!("{} app(s).", apps.len());
 }
 
+/// Resolve `--app <name>` to exactly one discovered app, or explain why not.
+fn resolve_one_app(name: &str) -> Result<InstalledApp> {
+    let apps = discover(&DiscoverOptions {
+        filter: Some(name.to_string()),
+        ..Default::default()
+    });
+    match apps.len() {
+        0 => Err(format!(
+            "no installed app matches '{name}' — run `assay discover` to see what is available"
+        )
+        .into()),
+        1 => Ok(apps.into_iter().next().expect("length checked")),
+        _ => {
+            // Guessing which one the user meant risks porting the wrong app entirely.
+            let names: Vec<String> = apps
+                .iter()
+                .map(|a| format!("{} ({})", a.display_name, a.id))
+                .collect();
+            Err(format!(
+                "'{name}' is ambiguous — {} apps match:\n  {}",
+                names.len(),
+                names.join("\n  ")
+            )
+            .into())
+        }
+    }
+}
+
+/// Resolve `--app <name>` to its `AppxManifest.xml`.
+fn resolve_app_manifest(name: &str) -> Result<PathBuf> {
+    let app = resolve_one_app(name)?;
+    if let Some(why) = app.blocker() {
+        return Err(format!("'{}' cannot be ported: {why}", app.display_name).into());
+    }
+    app.manifest.clone().ok_or_else(|| {
+        format!(
+            "'{}' is an {} app; `port` currently handles hosted-PWA MSIX packages only",
+            app.display_name,
+            app.kind.as_str()
+        )
+        .into()
+    })
+}
+
 /// Resolve `--app <name>` to a profile by discovering it on this machine.
 fn resolve_app(name: &str) -> Result<Profile> {
     let apps = discover(&DiscoverOptions {
@@ -394,6 +449,66 @@ fn run() -> Result<()> {
                 "cannot write deps.txt",
             )?;
             eprintln!("wrote bridge.rs + deps.txt to {}", out_dir.display());
+        }
+        Commands::Port {
+            app,
+            appx,
+            out_dir,
+        } => {
+            let manifest = match (&app, &appx) {
+                (Some(name), _) => resolve_app_manifest(name)?,
+                (None, Some(p)) => p.clone(),
+                (None, None) => {
+                    eprintln!("error: provide --app <name> or --appx <path>");
+                    std::process::exit(EXIT_USAGE);
+                }
+            };
+            let xml = read_file(&manifest, "cannot read AppxManifest.xml")?;
+            let Some(pwa) = corelib::detect_pwa(&xml) else {
+                // Refusing is the honest outcome: a conventional UWP app renders native XAML,
+                // and there is no mechanical port from that to HTML.
+                return Err(format!(
+                    "{} is not a hosted-PWA package, so it cannot be ported this way.\n\
+                     `port` handles MSIX packages that host a URL in Edge (HostId=\"PWA\"). A \
+                     conventional UWP app renders native XAML; run `assay analyze` to see which \
+                     of its capabilities Tauri can reproduce.",
+                    manifest.display()
+                )
+                .into());
+            };
+            let port = corelib::port_pwa_to_tauri(&pwa);
+
+            let src = out_dir.join("src-tauri").join("src");
+            std::fs::create_dir_all(&src)
+                .map_err(|e| format!("cannot create {}: {e}", src.display()))?;
+            // Present but empty: `tauri build` expects frontendDist to exist even when the
+            // window loads a remote URL.
+            std::fs::create_dir_all(out_dir.join("dist"))
+                .map_err(|e| format!("cannot create dist: {e}"))?;
+
+            let tauri_dir = out_dir.join("src-tauri");
+            write_file(&tauri_dir.join("Cargo.toml"), &port.cargo_toml, "cannot write Cargo.toml")?;
+            write_file(&tauri_dir.join("build.rs"), &port.build_rs, "cannot write build.rs")?;
+            // Without this file tauri-build refuses to run at all.
+            let icons = tauri_dir.join("icons");
+            std::fs::create_dir_all(&icons)
+                .map_err(|e| format!("cannot create {}: {e}", icons.display()))?;
+            std::fs::write(icons.join("icon.ico"), corelib::pwa::placeholder_icon())
+                .map_err(|e| format!("cannot write icon.ico: {e}"))?;
+            write_file(&tauri_dir.join("tauri.conf.json"), &port.tauri_conf, "cannot write tauri.conf.json")?;
+            write_file(&src.join("main.rs"), &port.main_rs, "cannot write main.rs")?;
+            write_file(&out_dir.join("MIGRATION.md"), &port.migration_md, "cannot write MIGRATION.md")?;
+
+            eprintln!(
+                "ported '{}' -> {}\n  start URL: {}\n  NOT ported ({}):",
+                pwa.name,
+                out_dir.display(),
+                pwa.start_url,
+                port.not_ported.len()
+            );
+            for n in &port.not_ported {
+                eprintln!("    - {n}");
+            }
         }
         Commands::Sidecar {
             electron_pkg,

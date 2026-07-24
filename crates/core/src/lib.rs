@@ -3,6 +3,7 @@ pub mod discover;
 pub mod matrix;
 pub mod parse;
 pub mod profile;
+pub mod pwa;
 pub mod report;
 pub mod scaffold;
 pub mod sidecar;
@@ -14,6 +15,7 @@ pub use matrix::{
 };
 pub use parse::{detect_native_modules, parse_appx_manifest, parse_electron, NativeModule};
 pub use profile::Profile;
+pub use pwa::{detect_pwa, port_pwa_to_tauri, PwaApp, TauriPort};
 pub use report::render_report;
 pub use scaffold::{scaffold, ScaffoldOutput};
 pub use sidecar::{generate_sidecar, SidecarKit};
