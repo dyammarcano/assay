@@ -3,3 +3,6 @@
 .scripts/
 assay-out/
 /build
+
+# scratch output from local flow runs
+tmp/
