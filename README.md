@@ -1,5 +1,5 @@
 # Assay
-<!-- rev:002 (RFC 3339) 2026-07-24T01:19:21Z -->
+<!-- rev:003 (RFC 3339) 2026-07-24T02:47:10Z -->
 
 **Porting a Windows Electron or UWP app to Tauri v2? Find out what breaks before you start.**
 
@@ -24,6 +24,39 @@ Prefer not to install? Every command below also works in-repo as
 `cargo run -p cli -- <args>`.
 
 ## Quickstart — point it at *your* app
+
+### Find the app first
+
+You don't have to hunt for install paths by hand. `discover` enumerates what's actually
+installed and prints the exact command to analyze each one:
+
+```sh
+assay discover                        # everything it can find
+assay discover --filter instagram     # by name
+assay discover --kind electron        # one kind: uwp | electron
+assay discover --running              # only apps with a live process
+```
+
+```
+Instagram (uwp) 42.0.23.0
+  id:   Facebook.InstagramBeta_42.0.23.0_neutral__8xx8rvfyw5nnt
+  path: C:\Program Files\WindowsApps\Facebook.InstagramBeta_42.0.23.0_neutral__8xx8rvfyw5nnt
+  assay analyze --appx "C:\Program Files\WindowsApps\Facebook.Insta…\AppxManifest.xml"
+```
+
+UWP packages are enumerated from the per-user AppModel registry, because
+`C:\Program Files\WindowsApps` denies directory listing to a normal user — individual files
+under it still open once the exact path is known. Apps that *can't* be analyzed are still
+listed, with the reason (`NOT ANALYZABLE: main process is packed in app.asar …`), since
+omitting them would look exactly like "not installed".
+
+Then skip the paths entirely:
+
+```sh
+assay analyze --app instagram
+```
+
+An ambiguous `--app` is refused with the list of matches rather than guessed.
 
 ### Electron
 

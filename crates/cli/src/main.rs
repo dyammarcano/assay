@@ -1,7 +1,8 @@
 use clap::{Parser, Subcommand};
 use corelib::{
-    analyze, detect_native_modules, generate_sidecar, parse_appx_manifest, parse_electron,
-    render_divergence, render_report, scaffold, Matrix, Profile, Source,
+    analyze, detect_native_modules, discover, generate_sidecar, parse_appx_manifest, parse_electron,
+    render_divergence, render_report, scaffold, AppKind, DiscoverOptions, InstalledApp, Matrix,
+    Profile, Source,
 };
 use std::path::{Path, PathBuf};
 
@@ -37,6 +38,9 @@ enum Commands {
     Analyze {
         #[arg(long)]
         matrix: Option<PathBuf>,
+        /// Analyze an installed app by name, resolved via `discover` (e.g. --app instagram)
+        #[arg(long)]
+        app: Option<String>,
         #[arg(long)]
         profile: Option<PathBuf>,
         #[arg(long)]
@@ -62,6 +66,18 @@ enum Commands {
         electron_main: Option<PathBuf>,
         #[arg(long, default_value = "assay-out")]
         out_dir: PathBuf,
+    },
+    /// Find UWP/Electron apps installed on this machine and where they live
+    Discover {
+        /// Restrict to one kind: uwp | electron
+        #[arg(long)]
+        kind: Option<String>,
+        /// Case-insensitive substring matched against the app name and package id
+        #[arg(long)]
+        filter: Option<String>,
+        /// Only apps with a live process
+        #[arg(long)]
+        running: bool,
     },
     /// Detect Electron native modules and scaffold a sidecar migration kit
     Sidecar {
@@ -184,6 +200,104 @@ files — pass the main-process DIRECTORY to --electron-main for full coverage."
     std::process::exit(EXIT_USAGE);
 }
 
+fn parse_kind(kind: &Option<String>) -> Option<AppKind> {
+    match kind.as_deref() {
+        None => None,
+        Some("uwp") => Some(AppKind::Uwp),
+        Some("electron") => Some(AppKind::Electron),
+        Some(other) => {
+            eprintln!("error: --kind must be 'uwp' or 'electron', got '{other}'");
+            std::process::exit(EXIT_USAGE);
+        }
+    }
+}
+
+fn render_discovery(apps: &[InstalledApp]) {
+    if apps.is_empty() {
+        println!("No matching apps found.");
+        return;
+    }
+    for app in apps {
+        let run = if app.is_running() {
+            format!(" [running: {} pid(s)]", app.running_pids.len())
+        } else {
+            String::new()
+        };
+        let version = app.version.as_deref().unwrap_or("-");
+        println!("{} ({}) {}{}", app.display_name, app.kind.as_str(), version, run);
+        println!("  id:   {}", app.id);
+        println!("  path: {}", app.install_root.display());
+        match app.blocker() {
+            // An app we cannot analyze is still listed, with the reason. Dropping it silently
+            // would look identical to "you have no such app installed".
+            Some(why) => println!("  NOT ANALYZABLE: {why}"),
+            None => {
+                if let Some(cmd) = app.analyze_command() {
+                    println!("  {cmd}");
+                }
+            }
+        }
+        println!();
+    }
+    println!("{} app(s).", apps.len());
+}
+
+/// Resolve `--app <name>` to a profile by discovering it on this machine.
+fn resolve_app(name: &str) -> Result<Profile> {
+    let apps = discover(&DiscoverOptions {
+        filter: Some(name.to_string()),
+        ..Default::default()
+    });
+    match apps.len() {
+        0 => Err(format!(
+            "no installed app matches '{name}' — run `assay discover` to see what is available"
+        )
+        .into()),
+        1 => {
+            let app = &apps[0];
+            if let Some(why) = app.blocker() {
+                return Err(format!("'{}' cannot be analyzed: {why}", app.display_name).into());
+            }
+            eprintln!(
+                "note: resolved '{name}' to {} ({}) at {}",
+                app.display_name,
+                app.kind.as_str(),
+                app.install_root.display()
+            );
+            match app.kind {
+                AppKind::Uwp => {
+                    let path = app.manifest.as_ref().expect("blocker() checked readability");
+                    let xml = read_file(path, "cannot read discovered AppxManifest.xml")?;
+                    Ok(parse_appx_manifest(&xml))
+                }
+                AppKind::Electron => {
+                    let pkg = app.package_json.as_ref().expect("blocker() checked presence");
+                    let main = app.main_dir.as_ref().ok_or_else(|| {
+                        format!("'{}' has no resolvable main-process directory", app.display_name)
+                    })?;
+                    let pj = read_file(pkg, "cannot read discovered package.json")?;
+                    let (ms, files) = read_electron_main(main)?;
+                    eprintln!("note: scanned {files} source file(s) under {}", main.display());
+                    Ok(parse_electron(&pj, &ms))
+                }
+            }
+        }
+        _ => {
+            // Guessing which one the user meant risks analyzing the wrong app entirely.
+            let names: Vec<String> = apps
+                .iter()
+                .map(|a| format!("{} ({})", a.display_name, a.id))
+                .collect();
+            Err(format!(
+                "'{name}' is ambiguous — {} apps match:\n  {}",
+                apps.len(),
+                names.join("\n  ")
+            )
+            .into())
+        }
+    }
+}
+
 fn parse_source(source: &Option<String>) -> Result<Option<Source>> {
     match source.as_deref() {
         None => Ok(None),
@@ -219,8 +333,21 @@ fn run() -> Result<()> {
                 None => print!("{md}"),
             }
         }
+        Commands::Discover {
+            kind,
+            filter,
+            running,
+        } => {
+            let apps = discover(&DiscoverOptions {
+                kind: parse_kind(&kind),
+                filter,
+                running_only: running,
+            });
+            render_discovery(&apps);
+        }
         Commands::Analyze {
             matrix,
+            app,
             profile,
             appx,
             electron_pkg,
@@ -228,7 +355,10 @@ fn run() -> Result<()> {
             emit_profile,
         } => {
             let m = load_matrix(&matrix)?;
-            let p = resolve_profile(&profile, &appx, &electron_pkg, &electron_main)?;
+            let p = match &app {
+                Some(name) => resolve_app(name)?,
+                None => resolve_profile(&profile, &appx, &electron_pkg, &electron_main)?,
+            };
             if let Some(out) = emit_profile {
                 write_file(&out, &p.to_toml(), "cannot write --emit-profile")?;
             }
