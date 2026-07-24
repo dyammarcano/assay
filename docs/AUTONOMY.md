@@ -4,7 +4,9 @@
 Standing authority for `/steps:autonomous`, granted by the operator on 2026-07-23.
 
 ## Envelope (granted once)
-- **Scope:** drive the whole remaining roadmap until a real blocker or done.
+- **Scope:** drive the whole remaining roadmap until a real blocker or done — **narrowed
+  2026-07-23 to the Windows platform only** (see the Windows Definition of Done in
+  `docs/ROADMAP.md`). macOS/Linux work is frozen until the operator lifts it.
 - **Design forks:** decide-and-log — pick the recommended option, record rationale in the
   spec's "Settled forks" + the decision log below; do NOT pause except a NEVER guardrail.
 - **Guardrails — allowed without asking:** commit locally · build/run/smoke-test locally ·
@@ -40,6 +42,13 @@ Per phase, run spec → self-review → plan → execute (TDD) → whole-branch 
 - Scope satisfied (roadmap + backlog exhausted).
 
 ## Decision log (newest first)
+- **2026-07-23 — SCOPE FREEZE: Windows first (operator decision).** Complete the Windows
+  platform before any cross-platform work. Recorded as a Definition of Done (W1–W5) in
+  `docs/ROADMAP.md`; macOS/Linux items moved to a "Frozen" section in `docs/BACKLOG.md` and
+  reclassified **deferred-by-decision, not blocked**. Key technical consequence captured in
+  `AGENTS.md`: on Windows an Electron→Tauri port is Chromium-to-Chromium (WebView2 *is*
+  Chromium), so engine divergence collapses to version skew — while UWP→Tauri is native-XAML to
+  HTML, a different problem entirely.
 - **2026-07-23 — scaffold-compiles check, and what it proved:** operator greenlit the real-tauri
   `cargo check`. It found the scaffolder had been emitting code that **does not compile**:
   `tauri` was missing from `deps.txt`, and three rows (`stronghold`, `global-shortcut`,

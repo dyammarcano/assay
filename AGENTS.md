@@ -21,6 +21,25 @@ achievable gaps — reporting the rest honestly instead of faking them.
 | `crates/webview-qa` | `webview-qa` | cross-WebView divergence differ + `diff` CLI |
 | `data/matrix.toml` | — | the cited capability/gap dataset (source of truth) |
 
+## SCOPE FREEZE — Windows only (2026-07-23)
+
+**The project targets Windows until the Windows Definition of Done in `docs/ROADMAP.md` is
+met.** Do NOT start macOS/Linux work (WKWebView / WebKitGTK drivers, `.app`/AppImage packaging,
+POSIX paths) until that freeze is explicitly lifted by the operator. Cross-platform items are
+parked in `docs/BACKLOG.md` under "Frozen — out of scope until Windows is done"; they are
+**deliberately deferred, not blocked**, and must not be re-listed as blockers.
+
+What the freeze changes technically — worth knowing before reasoning about parity:
+
+- **Electron → Tauri on Windows is Chromium-to-Chromium.** Electron bundles Chromium; Tauri on
+  Windows renders in WebView2, which *is* Chromium. So the cross-*engine* divergence risk mostly
+  collapses into **version skew** (Electron pins a Chromium version; WebView2 is evergreen and
+  auto-updates) plus WebView2's different feature/flag surface and the absence of Node. That is
+  a materially smaller and more measurable problem than WebView2-vs-WKWebView-vs-WebKitGTK.
+- **UWP → Tauri is not a webview-to-webview port at all.** The original renders native XAML, so
+  "visual parity" there means matching a native UI with HTML — a different and harder problem
+  than engine divergence. Do not conflate the two.
+
 ## Safety invariants — these must survive every change
 
 1. **Citation invariant** — every `data/matrix.toml` row keeps a non-empty `citation_url`.

@@ -1,5 +1,13 @@
 # wrap-swap Backlog
-<!-- rev:001 (RFC 3339) 2026-07-23T00:00:00Z -->
+<!-- rev:002 (RFC 3339) 2026-07-23T00:00:00Z -->
+
+## Frozen — out of scope until Windows is done (2026-07-23)
+Deferred **by decision**, not blocked. Do not re-list these as blockers or start them until the
+operator lifts the freeze (see the Windows Definition of Done in `docs/ROADMAP.md`).
+- **WKWebView driver** (macOS) and **WebKitGTK driver** (Linux) for `webview-qa`.
+- Any macOS/Linux packaging, path handling, or platform capability rows.
+- Cross-*engine* divergence work in general: on Windows both the Electron original and the
+  Tauri port are Chromium, so version skew (W4) is the signal that matters here.
 
 Deferred ideas and follow-up work — sourced from `docs/discovery/IDEA-BRIEF.md` (§5 runner-up
 ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Phases 1-3).

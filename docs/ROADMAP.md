@@ -57,7 +57,32 @@ recipes, `todo!()` stubs elsewhere, nothing fabricated for no-path/open-question
 - [x] Mimicry-bar decision — ADR 0001 **accepted** (Option B, phased) and implemented:
   `parity_tier` field + "visual parity NOT measured" divergence + report Tier column
 
-## Remaining — blocked on external prerequisites (autonomous run stopped here)
+## SCOPE FREEZE — Windows platform first (2026-07-23)
+
+All work targets **Windows** until the Definition of Done below is met. macOS/Linux items are
+**deferred by decision, not blocked** — see "Frozen" in `docs/BACKLOG.md`. Rationale and the
+technical consequences of the freeze are in `AGENTS.md`.
+
+### Windows — Definition of Done
+- [ ] **W1. WinRT toast actually fires.** Wire `winrt-shim`'s `ToastContent::to_xml()` to
+  `ToastNotificationManager` via `windows-rs`. *Gated on operator consent:* an unpackaged app
+  needs an AppUserModelID registered via a Start Menu shortcut (a change outside this repo).
+- [ ] **W2. UWP capability coverage.** Broaden `data/matrix.toml` across the WinRT surface a
+  real app uses (sensors, media, geolocation, print, contacts, background transfer, file
+  associations) — every row cited, per the citation invariant.
+- [ ] **W3. MSIX packaging path.** Document + scaffold the packaged-build route. This is the
+  gate that unlocks `uwp.app_services` and `uwp.background_tasks` (and is the only context in
+  which Live Tiles/Share Target could ever exist).
+- [ ] **W4. WebView2 version-skew measurement.** On Windows both sides are Chromium, so the real
+  divergence signal is version skew: capture the installed WebView2/Edge version and compare it
+  against the original Electron app's bundled Chromium version. Feeds ADR 0001's visual tier.
+- [ ] **W5. Validate against a real Windows binary** via `/unravel:*` — needs a pilot
+  UWP/Electron app from the operator.
+
+**Done for Windows already:** cited matrix + report/analyze/scaffold, sidecar kit, parity tier
+(ADR 0001), live `chromium-edge` capture driver, compile-verified scaffolding, Windows CI.
+
+## Remaining — deferred or blocked
 These need inputs/runtimes not available in the build environment; each would merge on an
 unverifiable green, so they are surfaced rather than faked:
 - **winrt-shim native toast dispatch** — needs a registered AppUserModelID (packaged app) + a
@@ -67,9 +92,9 @@ unverifiable green, so they are surfaced rather than faked:
   three matrix rows claiming a non-existent `init()` (stronghold, global-shortcut, updater)
   and a missing `tauri` dependency.
 - ~~**webview-qa live engine drivers**~~ — **Chromium/WebView2 family DONE** (`ChromiumDriver`,
-  headless Edge over CDP; host-gated live test passes on this host). Still blocked: **WKWebView**
-  (needs macOS) and **WebKitGTK** (needs Linux) — so cross-engine diffs need a mac/linux runner;
-  runs on Windows are single-engine and labelled as such.
+  headless Edge over CDP; host-gated live test passes). **WKWebView / WebKitGTK drivers are now
+  FROZEN, not blocked** — deferred by the Windows-first scope decision. Single-engine runs are
+  correct for Windows scope and are labelled as such.
 - **`/unravel:*` matrix validation** — needs a concrete pilot binary (none supplied at intake).
 
 ## Guiding invariant
