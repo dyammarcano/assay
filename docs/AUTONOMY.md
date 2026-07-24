@@ -40,6 +40,14 @@ Per phase, run spec → self-review → plan → execute (TDD) → whole-branch 
 - Scope satisfied (roadmap + backlog exhausted).
 
 ## Decision log (newest first)
+- **2026-07-23 — scaffold-compiles check, and what it proved:** operator greenlit the real-tauri
+  `cargo check`. It found the scaffolder had been emitting code that **does not compile**:
+  `tauri` was missing from `deps.txt`, and three rows (`stronghold`, `global-shortcut`,
+  `updater`) claimed a `tauri_plugin_x::init()` that does not exist. Fix is data-driven — new
+  optional `init_expr` / `crate_version` matrix fields, and `.plugin(...)` is emitted only for a
+  genuinely proven drop-in; a plugin needing developer configuration becomes a dependency plus a
+  commented example. All 13 plugin-backed rows now compile. Lesson recorded in AGENTS.md:
+  `recipe = "proven"` must mean compile-verified, never "looks right".
 - **2026-07-23 — Chromium driver approach (headless Edge + CDP, not embedded `wry`):** probed the
   host instead of re-reporting "blocked" and found Edge + the WebView2 Runtime installed. Chose
   CDP over embedding: no GUI event loop, no large native dep tree, same Chromium engine. Labelled

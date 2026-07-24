@@ -29,6 +29,9 @@ achievable gaps — reporting the rest honestly instead of faking them.
 2. **No fabricated code** — the scaffolder emits implementation code ONLY for `recipe = "proven"`
    rows. `none` / `open_question` capabilities go to the divergence report, never to generated
    code. The sidecar kit emits `todo!()` stubs; it never claims a module is migrated.
+   **`recipe = "proven"` means compile-verified**, not "looks right": a plugin row must pass the
+   `scaffold_compiles` test. Never assume a plugin exposes `init()` — several don't; put the real
+   call in `init_expr`, and if it needs developer input it is guidance, not a drop-in.
 3. **Honest reporting** — the divergence report and the webview-qa report always state what was
    NOT covered (no-path gaps, engines not exercised). A 1-engine run never reads as cross-engine.
 4. **No publishing** — every crate keeps `publish = false`. Crate names are short and plain with
@@ -40,6 +43,10 @@ achievable gaps — reporting the rest honestly instead of faking them.
 cargo test --workspace                                  # full suite
 cargo clippy --workspace --all-targets -- -D warnings   # lint gate (must be clean)
 cargo fmt --all                                         # format
+
+# Opt-in (network, ~4 min): compile generated scaffolding against the REAL tauri crates.
+# Run this whenever you add/change a `plugin`, `init_expr`, or `recipe = "proven"` row.
+cargo test -p core --test scaffold_compiles -- --ignored --test-threads=1
 ```
 
 The green gate is a **direct tool run** — never merge or check anything off on a self-reported

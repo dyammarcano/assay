@@ -6,7 +6,7 @@ expression: out.rust
 pub fn register(builder: tauri::Builder<tauri::Wry>) -> tauri::Builder<tauri::Wry> {
     builder
     // Global shortcuts (electron.global_shortcut) — official plugin
-    .plugin(tauri_plugin_global_shortcut::init())
+    .plugin(tauri_plugin_global_shortcut::Builder::new().build())
     // Main/renderer IPC (electron.ipc) — no proven recipe; implement manually
     // stub:
     // fn electron_ipc() { todo!("implement electron.ipc") }

@@ -34,8 +34,12 @@ this file is for defects and hard boundaries of the current build.
 
 ## Scaffolder limitations
 
-- **Proven-recipe crates emit a wildcard version** (`crate = "*"`) in `deps.txt` — a starting
-  point, not a pinned dependency; the developer must choose a real version.
+- **A plugin is only wired automatically when it is a true drop-in.** Plugins needing developer
+  configuration (e.g. `tauri-plugin-stronghold`, which requires a password-hash function) are
+  emitted as a dependency plus a commented example, never as code — otherwise the generated
+  bridge would not compile. Enforced by the opt-in `scaffold_compiles` test.
+- **Crate versions come from the matrix** (`crate_version`); a row without one falls back to
+  `"*"`, which is a starting point rather than a pinned dependency.
 - Generated `bridge.rs` is a wiring skeleton; `custom_rust`/`sidecar` gaps without a proven
   recipe are emitted as commented stubs, not working code (by design — honesty invariant).
 

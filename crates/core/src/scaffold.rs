@@ -8,14 +8,28 @@ pub struct ScaffoldOutput {
 fn emit_gap(out: &mut String, deps: &mut Vec<String>, g: &GapItem) {
     if let Some(plugin) = &g.plugin {
         deps.push(format!("{plugin} = \"2\""));
-        out.push_str(&format!(
-            "    // {} ({}) — official plugin\n    .plugin({}::init())\n",
-            g.name,
-            g.id,
-            plugin.replace('-', "_")
-        ));
+        // Only a verified drop-in gets emitted as code. Plugins that need developer
+        // configuration (a KDF, a callback, ...) have no `init()` and must NOT be wired
+        // blindly — that produced code which did not compile against the real crate.
+        let init = g
+            .init_expr
+            .clone()
+            .unwrap_or_else(|| format!("{}::init()", plugin.replace('-', "_")));
+        if g.recipe == Some(crate::Recipe::Proven) {
+            out.push_str(&format!(
+                "    // {} ({}) — official plugin\n    .plugin({})\n",
+                g.name, g.id, init
+            ));
+        } else {
+            out.push_str(&format!(
+                "    // {} ({}) — plugin `{}` needs configuration; not a drop-in.\n    \
+// Add the dependency, then wire it yourself, e.g.:\n    //   .plugin({})\n",
+                g.name, g.id, plugin, init
+            ));
+        }
     } else if let Some(krate) = &g.crate_name {
-        deps.push(format!("{krate} = \"*\""));
+        let ver = g.crate_version.as_deref().unwrap_or("*");
+        deps.push(format!("{krate} = \"{ver}\""));
         out.push_str(&format!(
             "    // {} ({}) — proven crate: {}\n    // TODO wire {}; see crate docs\n",
             g.name, g.id, krate, krate
@@ -36,7 +50,9 @@ pub fn scaffold(a: &Analysis) -> ScaffoldOutput {
     rust.push_str(
         "pub fn register(builder: tauri::Builder<tauri::Wry>) -> tauri::Builder<tauri::Wry> {\n    builder\n",
     );
-    let mut deps = Vec::new();
+    // The generated `register()` signature references `tauri::Builder`, so tauri itself is
+    // always a required dependency — not just the per-gap plugins.
+    let mut deps = vec!["tauri = \"2\"".to_string()];
     for g in &a.gaps {
         emit_gap(&mut rust, &mut deps, g);
     }

@@ -2,5 +2,6 @@
 source: crates/core/src/scaffold.rs
 expression: "out.cargo_deps.join(\"\\n\")"
 ---
+tauri = "2"
 tauri-plugin-global-shortcut = "2"
-tauri-winrt-notification = "*"
+tauri-winrt-notification = "0.8"

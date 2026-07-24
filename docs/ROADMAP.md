@@ -62,7 +62,10 @@ These need inputs/runtimes not available in the build environment; each would me
 unverifiable green, so they are surfaced rather than faked:
 - **winrt-shim native toast dispatch** — needs a registered AppUserModelID (packaged app) + a
   desktop session; "toast shown" isn't automatable-verifiable.
-- **Full temp-crate `cargo check` of generated scaffolding** — needs real tauri + plugin deps.
+- ~~**Full temp-crate `cargo check` of generated scaffolding**~~ — **DONE**: opt-in test
+  compiles the generated bridge against the real tauri + plugin crates. It immediately caught
+  three matrix rows claiming a non-existent `init()` (stronghold, global-shortcut, updater)
+  and a missing `tauri` dependency.
 - ~~**webview-qa live engine drivers**~~ — **Chromium/WebView2 family DONE** (`ChromiumDriver`,
   headless Edge over CDP; host-gated live test passes on this host). Still blocked: **WKWebView**
   (needs macOS) and **WebKitGTK** (needs Linux) — so cross-engine diffs need a mac/linux runner;

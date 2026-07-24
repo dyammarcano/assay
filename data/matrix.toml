@@ -9,6 +9,8 @@ severity = "partial"
 citation_url = "https://docs.rs/tauri-winrt-notification"
 recipe = "proven"
 crate_name = "tauri-winrt-notification"
+# Version resolved and compile-verified by the scaffold-compiles check.
+crate_version = "0.8"
 parity_tier = "visual"
 
 [[capabilities]]
@@ -30,8 +32,10 @@ description = "Windows.Security.Credentials.PasswordVault OS-locker-backed stora
 tauri_path = "plugin"
 severity = "partial"
 citation_url = "https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.passwordvault"
-recipe = "proven"
 plugin = "tauri-plugin-stronghold"
+# Verified by the scaffold-compiles check: this plugin has NO `init()`. It requires a
+# password-hash function, so it is guidance, not a drop-in recipe.
+init_expr = "tauri_plugin_stronghold::Builder::new(|password| { /* your KDF, e.g. argon2 */ Vec::new() }).build()"
 
 [[capabilities]]
 id = "uwp.background_tasks"
@@ -101,6 +105,8 @@ severity = "full"
 citation_url = "https://v2.tauri.app/plugin/"
 recipe = "proven"
 plugin = "tauri-plugin-global-shortcut"
+# Verified by the scaffold-compiles check: no bare `init()`; builder takes no args.
+init_expr = "tauri_plugin_global_shortcut::Builder::new().build()"
 
 [[capabilities]]
 id = "electron.auto_update"
@@ -112,6 +118,8 @@ severity = "full"
 citation_url = "https://v2.tauri.app/plugin/"
 recipe = "proven"
 plugin = "tauri-plugin-updater"
+# Verified by the scaffold-compiles check: no bare `init()`; builder takes no args.
+init_expr = "tauri_plugin_updater::Builder::new().build()"
 
 [[capabilities]]
 id = "electron.deep_link"
@@ -187,6 +195,7 @@ severity = "full"
 citation_url = "https://github.com/tauri-apps/plugins-workspace"
 recipe = "proven"
 plugin = "tauri-plugin-autostart"
+init_expr = "tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None)"
 
 [[capabilities]]
 id = "electron.single_instance"
@@ -198,6 +207,7 @@ severity = "full"
 citation_url = "https://github.com/tauri-apps/plugins-workspace"
 recipe = "proven"
 plugin = "tauri-plugin-single-instance"
+init_expr = "tauri_plugin_single_instance::init(|_app, _args, _cwd| {})"
 
 [[capabilities]]
 id = "electron.menu"

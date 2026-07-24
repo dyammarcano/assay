@@ -41,6 +41,11 @@ ideas, §6 open questions) and the plan's deferred hardening. Not in the MVP (Ph
 - [x] Syntactic validity of generated scaffolding — **done** (`4d1c950`): `syn::parse_file`
   test proves `bridge.rs` is valid Rust. (Full temp-crate `cargo check` — which needs the real
   tauri + plugin deps — remains deferred below.)
-- Full temp-crate `cargo check` of generated scaffolding (needs tauri + plugin deps resolvable).
+- [x] Full temp-crate `cargo check` of generated scaffolding — **done**: opt-in test
+  `crates/core/tests/scaffold_compiles.rs` builds a throwaway crate around the generated
+  bridge with the **real** tauri + plugin crates and compiles it. Covers every
+  plugin-backed capability (13). Run it deliberately:
+  `cargo test -p core --test scaffold_compiles -- --ignored --test-threads=1`
+  (`#[ignore]` by default — needs network, ~4 min, pulls the full tauri tree.)
 - Run `/unravel:*` RE workers against a concrete pilot binary to validate the matrix against a
   real app (none was supplied at discovery time).

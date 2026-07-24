@@ -14,3 +14,4 @@ serde_json = "1"
 [dev-dependencies]
 insta = { workspace = true }
 syn = { version = "2", features = ["full"] }
+tempfile = { workspace = true }

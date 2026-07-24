@@ -1,4 +1,4 @@
-use crate::{Matrix, ParityTier, Profile, TauriPath};
+use crate::{Matrix, ParityTier, Profile, Recipe, TauriPath};
 
 pub struct GapItem {
     pub id: String,
@@ -6,6 +6,12 @@ pub struct GapItem {
     pub tauri_path: TauriPath,
     pub plugin: Option<String>,
     pub crate_name: Option<String>,
+    /// `Some(Recipe::Proven)` means a verified drop-in; anything else is guidance only.
+    pub recipe: Option<Recipe>,
+    /// Non-default plugin initialization expression, when the crate has one.
+    pub init_expr: Option<String>,
+    /// Version requirement for `crate_name` (falls back to `"*"`).
+    pub crate_version: Option<String>,
     /// ADR 0001 — how deep the parity promise goes for this capability.
     pub parity_tier: ParityTier,
 }
@@ -49,6 +55,9 @@ pub fn analyze(m: &Matrix, p: &Profile) -> Analysis {
                     tauri_path: c.tauri_path,
                     plugin: c.plugin.clone(),
                     crate_name: c.crate_name.clone(),
+                    recipe: c.recipe,
+                    init_expr: c.init_expr.clone(),
+                    crate_version: c.crate_version.clone(),
                     parity_tier: c.parity_tier(),
                 }),
             },

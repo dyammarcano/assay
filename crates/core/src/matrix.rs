@@ -60,6 +60,15 @@ pub struct Capability {
     pub plugin: Option<String>,
     #[serde(default)]
     pub crate_name: Option<String>,
+    /// The real initialization expression for a plugin, when it is not the usual
+    /// `tauri_plugin_x::init()`. Emitted as code when `recipe = "proven"`, otherwise as
+    /// guidance in a comment (plugins that need developer configuration are never drop-ins).
+    #[serde(default)]
+    pub init_expr: Option<String>,
+    /// Version requirement for `crate_name`. Absent falls back to `"*"`, which is poor
+    /// practice in generated manifests — set it for any crate the scaffolder emits.
+    #[serde(default)]
+    pub crate_version: Option<String>,
     /// Absent = [`ParityTier::Behavioral`]. See [`Capability::parity_tier`].
     #[serde(default)]
     pub parity_tier: Option<ParityTier>,
