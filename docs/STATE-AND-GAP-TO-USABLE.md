@@ -167,9 +167,16 @@ Not on the path — absent **by decision**, so don't read them as accidental omi
       `node_modules`), and warns explicitly when a single-file run is partial.
 - [x] README has a "Known limits" section (Windows-only, textual detection, bundled-main
       caveat, matrix breadth, visual tier unmeasured, CI never run).
-- [ ] CI has either **actually executed once**, or the README states plainly that it hasn't.
-      *(README now states it plainly — upgrade to "executed" requires a remote.)*
-- [ ] `v0.1.0` tagged with a `CHANGELOG.md`. **Gated on the distribution decision.**
+- [~] CI has either **actually executed once**, or the README states plainly that it hasn't.
+      *2026-07-24: remote created (`github.com/dyammarcano/assay`, private) and pushed. First CI
+      run triggered and ended in `startup_failure` — no jobs created. Workflow YAML verified
+      byte-identical local↔remote and valid; Actions enabled, all actions allowed. Cause is
+      environmental, most likely private-repo Actions minutes/billing (windows-latest = 2×;
+      public repos get Actions free) — **unconfirmed**, billing API needs a `user` token scope
+      that was not escalated. README states the situation plainly.*
+- [~] `v0.1.0` tagged with a `CHANGELOG.md`. *CHANGELOG written; tag deliberately withheld until
+      CI produces one green run — tagging a release whose CI has never passed would assert
+      confidence we do not have.*
 
 ## Honest uncertainties
 
