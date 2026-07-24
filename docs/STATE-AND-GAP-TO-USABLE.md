@@ -169,11 +169,14 @@ Not on the path — absent **by decision**, so don't read them as accidental omi
       caveat, matrix breadth, visual tier unmeasured, CI never run).
 - [~] CI has either **actually executed once**, or the README states plainly that it hasn't.
       *2026-07-24: remote created (`github.com/dyammarcano/assay`, private) and pushed. First CI
-      run triggered and ended in `startup_failure` — no jobs created. Workflow YAML verified
-      byte-identical local↔remote and valid; Actions enabled, all actions allowed. Cause is
-      environmental, most likely private-repo Actions minutes/billing (windows-latest = 2×;
-      public repos get Actions free) — **unconfirmed**, billing API needs a `user` token scope
-      that was not escalated. README states the situation plainly.*
+      run ended in `startup_failure`. Repo then made **public** (gitleaks-scanned first: 24
+      commits, no leaks). Public runs now start but still fail: **no runner is ever allocated** —
+      job created, `runner_name: ""`, 0 steps, ~2s, no logs, reproducible. Ruled out: workflow
+      YAML (valid, byte-identical local↔remote), repo Actions settings (enabled, all allowed),
+      and visibility (identical failure both ways). My private-billing theory was **disproven**
+      by the public retry. Remaining cause is account-level Actions availability
+      (spending limit / payment method) — needs the operator; the billing API requires a `user`
+      token scope I did not escalate.*
 - [~] `v0.1.0` tagged with a `CHANGELOG.md`. *CHANGELOG written; tag deliberately withheld until
       CI produces one green run — tagging a release whose CI has never passed would assert
       confidence we do not have.*

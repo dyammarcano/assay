@@ -98,12 +98,13 @@ Read these before trusting the output:
   Anything not in the matrix is reported as *unknown and skipped*, never silently assumed fine.
 - **"Visual parity" is declared, not measured.** Six UI-surfacing capabilities are marked
   visual-tier (ADR 0001) and always report *not measured* — see `docs/adr/0001-mimicry-bar.md`.
-- **CI has not yet produced a green run.** The workflow in `.github/workflows/ci.yml` is wired
-  and its first run was triggered, but it ended in `startup_failure` — no jobs were created. The
-  workflow file itself is valid (byte-identical local↔remote, correct YAML), and Actions are
-  enabled on the repo, so the cause is environmental rather than a config error; the leading
-  suspect is private-repo Actions minutes/billing (`windows-latest` bills at a 2× multiplier,
-  while public repos get Actions free). **Unconfirmed.** The local suite is green
+- **CI has not yet produced a green run.** `.github/workflows/ci.yml` is wired and triggers, but
+  **no runner is ever allocated**: the job is created and fails in ~2 seconds with
+  `runner_name: ""`, zero steps executed and no logs. Ruled out: the workflow file (valid YAML,
+  byte-identical local↔remote), repo Actions settings (`enabled`, `allowed_actions: all`), and
+  repo visibility (the failure is identical public and private). The remaining cause is
+  account-level GitHub Actions availability — check
+  [billing/spending limits](https://github.com/settings/billing). The local suite is green
   (`cargo test --workspace`, `cargo clippy -- -D warnings`) — which is not the same thing.
 
 Full list: [`docs/ISSUES.md`](docs/ISSUES.md).
