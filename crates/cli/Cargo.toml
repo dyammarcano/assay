@@ -10,7 +10,10 @@ name = "wrap-swap"
 path = "src/main.rs"
 
 [dependencies]
-core = { path = "../core" }
+# Imported under an alias: a dependency literally named `core` shadows Rust's built-in
+# `core` crate in this crate's extern prelude, which breaks macros that expand to `core::`
+# paths (clap's `version` derive). The package/folder name stays plain `core`.
+corelib = { path = "../core", package = "core" }
 clap = { workspace = true }
 
 [dev-dependencies]

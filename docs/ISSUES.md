@@ -26,9 +26,12 @@ this file is for defects and hard boundaries of the current build.
 
 ## Parser limitations
 
-- **Electron detection is heuristic** — `parse_electron` greps the single supplied main-source
-  string for API identifiers and scans `dependencies` for known native-module package names. It
-  will miss APIs used in files other than the one passed, and dynamic/aliased requires.
+- **Electron detection is textual** — `parse_electron` greps main-process source for Electron API
+  identifiers and scans `dependencies` for known native-module package names. `--electron-main`
+  accepts a **directory** (scanned recursively, skipping `node_modules` and dotted dirs) or a
+  single file; a single-file run prints a warning that it is probably partial. Still missed:
+  dynamically-built or aliased requires, and **bundled/webpack'd** main processes, where
+  identifier grepping can fail entirely.
 - **AppxManifest parsing requires well-formed, namespace-declared XML** — an undeclared prefix
   makes `roxmltree` reject the document (the parser returns an empty UWP profile in that case).
 

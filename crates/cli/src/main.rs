@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use core::{
+use corelib::{
     analyze, detect_native_modules, generate_sidecar, parse_appx_manifest, parse_electron,
     render_divergence, render_report, scaffold, Matrix, Profile, Source,
 };
@@ -13,6 +13,7 @@ const EXIT_USAGE: i32 = 2;
 #[derive(Parser)]
 #[command(
     name = "wrap-swap",
+    version,
     about = "UWP/Electron \u{2192} Tauri parity toolkit"
 )]
 struct Cli {
@@ -79,6 +80,62 @@ fn write_file(p: &Path, contents: &str, what: &str) -> Result<()> {
     std::fs::write(p, contents).map_err(|e| format!("{what} ({}): {e}", p.display()).into())
 }
 
+/// Source extensions an Electron main process can be written in.
+const JS_EXTS: [&str; 6] = ["js", "mjs", "cjs", "ts", "tsx", "jsx"];
+
+/// Read the Electron main-process source: either a single file, or **every** JS/TS file in a
+/// directory (recursively, skipping `node_modules` and dotted dirs).
+///
+/// Real main processes span many files, so a single-file read silently under-reports the
+/// capabilities an app uses. Returns the combined source and how many files were read so the
+/// caller can say so out loud.
+fn read_electron_main(p: &Path) -> Result<(String, usize)> {
+    if !p.is_dir() {
+        return Ok((read_file(p, "cannot read --electron-main")?, 1));
+    }
+    let mut buf = String::new();
+    let mut count = 0usize;
+    collect_js_sources(p, &mut buf, &mut count)?;
+    if count == 0 {
+        return Err(format!(
+            "no JS/TS source files found under --electron-main ({})",
+            p.display()
+        )
+        .into());
+    }
+    Ok((buf, count))
+}
+
+fn collect_js_sources(dir: &Path, buf: &mut String, count: &mut usize) -> Result<()> {
+    let entries =
+        std::fs::read_dir(dir).map_err(|e| format!("cannot read {}: {e}", dir.display()))?;
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("cannot read {}: {e}", dir.display()))?;
+        let path = entry.path();
+        let name = entry.file_name();
+        let name = name.to_string_lossy();
+        if path.is_dir() {
+            // Dependencies are not the app's own main process; dotted dirs are noise.
+            if name == "node_modules" || name.starts_with('.') {
+                continue;
+            }
+            collect_js_sources(&path, buf, count)?;
+        } else if path
+            .extension()
+            .and_then(|x| x.to_str())
+            .is_some_and(|e| JS_EXTS.contains(&e))
+        {
+            // Unreadable individual files are skipped rather than failing the whole scan.
+            if let Ok(text) = std::fs::read_to_string(&path) {
+                buf.push('\n');
+                buf.push_str(&text);
+                *count += 1;
+            }
+        }
+    }
+    Ok(())
+}
+
 fn load_matrix(path: &Option<PathBuf>) -> Result<Matrix> {
     match path {
         Some(p) => {
@@ -107,7 +164,20 @@ fn resolve_profile(
     }
     if let (Some(pkg), Some(main)) = (epkg, emain) {
         let pj = read_file(pkg, "cannot read --electron-pkg")?;
-        let ms = read_file(main, "cannot read --electron-main")?;
+        let (ms, files) = read_electron_main(main)?;
+        if files == 1 && !main.is_dir() {
+            // Say it plainly: a one-file scan is very likely partial.
+            eprintln!(
+                "note: scanned 1 file ({}). Electron main processes usually span several \
+files — pass the main-process DIRECTORY to --electron-main for full coverage.",
+                main.display()
+            );
+        } else {
+            eprintln!(
+                "note: scanned {files} source file(s) under {}",
+                main.display()
+            );
+        }
         return Ok(parse_electron(&pj, &ms));
     }
     eprintln!("error: provide --profile, --appx, or --electron-pkg + --electron-main");

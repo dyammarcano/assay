@@ -115,6 +115,9 @@ critical path.
 
 ## Critical path to Usable v1
 
+> **Status 2026-07-24:** items **1–4 are DONE** (commit below). Only the gated distribution
+> decision (5–6) remains between here and Usable v1.
+
 Ordered. Items 1–4 need nothing from anyone; 5–6 need an operator decision.
 
 1. **Add `--version` to both CLIs** — `#[command(version)]` in `crates/cli/src/main.rs` and
@@ -153,25 +156,32 @@ Not on the path — absent **by decision**, so don't read them as accidental omi
 
 ## Definition of Done for "Usable v1"
 
-- [ ] `wrap-swap --version` and `webview-qa --version` both print the version.
-- [ ] A documented install command that a fresh user can run, **verified by actually running
-      it** (not assumed) — `cargo install --git …` or `cargo install --path crates/cli`.
-- [ ] README quickstart takes a user from install → **their own app** → a gap report, with a
+- [x] `wrap-swap --version` and `webview-qa --version` both print the version.
+      *(verified: `wrap-swap 0.1.0`)*
+- [x] A documented install command that a fresh user can run, **verified by actually running
+      it** — `cargo install --path crates/cli` exits 0 and produces a working binary. Verified
+      via `--root <temp>` so the operator's `~/.cargo/bin` was not modified.
+- [x] README quickstart takes a user from install → **their own app** → a gap report, with a
       realistic expected-output block.
-- [ ] `analyze` handles a multi-file Electron main process, or explicitly warns that a
-      single-file run is partial.
-- [ ] README has a "Known limits" section (Windows-only, single-engine capture, visual tier
-      unmeasured, matrix breadth).
+- [x] `analyze` handles a multi-file Electron main process (directory scan, recursive, skips
+      `node_modules`), and warns explicitly when a single-file run is partial.
+- [x] README has a "Known limits" section (Windows-only, textual detection, bundled-main
+      caveat, matrix breadth, visual tier unmeasured, CI never run).
 - [ ] CI has either **actually executed once**, or the README states plainly that it hasn't.
-- [ ] `v0.1.0` tagged with a `CHANGELOG.md`.
+      *(README now states it plainly — upgrade to "executed" requires a remote.)*
+- [ ] `v0.1.0` tagged with a `CHANGELOG.md`. **Gated on the distribution decision.**
 
 ## Honest uncertainties
 
-- **`cargo install --path crates/cli` is untested.** It *should* install the `wrap-swap` binary,
-  but I did not run it — that writes into `~/.cargo/bin`, a change to the operator's machine I
-  won't make unasked. Item 5 must verify it rather than assume.
-- **Effort estimates assume no surprises** in the Electron directory-scan work; bundled or
-  transpiled main processes (webpack output) may defeat identifier grepping entirely, which
-  would be a deeper capability question, not a parsing fix.
+- ~~`cargo install --path crates/cli` is untested.~~ **Resolved 2026-07-24** — verified with
+  `--root <temp dir>`, which proves the command without writing to the operator's `~/.cargo/bin`.
+  Exit 0, binary produced, `--version` and `report` both work.
+- **Bundled main processes remain a real hole.** The directory scan fixes multi-file apps, but a
+  webpack'd/transpiled main process can defeat identifier grepping entirely. That is a deeper
+  capability question (parse the bundle? read the source map?), not a parsing tweak. Documented
+  in the README's Known limits rather than papered over.
+- **The `core` crate name has a standing cost.** A dependency literally named `core` shadows
+  Rust's built-in `core` in the consuming crate; this broke clap's `version` derive and is now
+  worked around by importing it in `cli` as `corelib`. Any future consumer hits the same thing.
 - **"24 capabilities is thin"** is a judgment call, not a measurement — there is no canonical
   list of "capabilities a real app uses" to measure against.

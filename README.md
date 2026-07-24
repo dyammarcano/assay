@@ -1,99 +1,178 @@
 # wrap-swap
-<!-- rev:001 (RFC 3339) 2026-07-23T00:00:00Z -->
+<!-- rev:002 (RFC 3339) 2026-07-24T01:19:21Z -->
 
-UWP/Electron → Tauri v2 parity toolkit. Ships a cited capability/gap matrix and
-scaffolds Rust bridge code to close the achievable gaps.
+**Porting a Windows Electron or UWP app to Tauri v2? Find out what breaks before you start.**
 
-## Layout
+`wrap-swap` reads your app, tells you which of its OS-integration capabilities Tauri can and
+cannot do — **every answer cited to a public doc, never guessed** — and generates the Rust
+bridge code for the ones it can.
 
-- `crates/core` — `core`: matrix model, dataset loader, parsers, analyzer, scaffolder.
-- `crates/cli` — `cli`: the `wrap-swap` binary (`report | analyze | scaffold | sidecar`).
-- `crates/winrt-shim` — `winrt-shim`: reusable WinRT capability shim (toast content + XML builder).
-- `crates/webview-qa` — `webview-qa`: cross-WebView divergence differ + `diff` CLI over recorded blobs.
-- `data/matrix.toml` — the cited capability/gap dataset (source of truth).
+## Install
 
-> Crate names are short and plain, with no project prefix. All crates set `publish = false` —
-> nothing here is published to crates.io. (`cli` imports the `core` crate as `core::`.)
-
-## Commands
+Requires [Rust](https://rustup.rs) (1.74+). This crate is **not published to crates.io**, so
+install it from a clone:
 
 ```sh
-# Render the full cited gap matrix as Markdown (with a per-path summary rollup)
-cargo run -p cli -- report [--out FILE] [--matrix data/matrix.toml] [--source uwp|electron]
-
-# Classify a target app's capabilities into gaps + a known-divergence report
-cargo run -p cli -- analyze --profile profile.toml
-cargo run -p cli -- analyze --appx AppxManifest.xml
-cargo run -p cli -- analyze --electron-pkg package.json --electron-main main.js
-
-# Emit Rust/Tauri bridge scaffolding (bridge.rs + deps.txt) for a profile's gaps
-cargo run -p cli -- scaffold --profile profile.toml --out-dir wrap-swap-out
-
-# Detect Electron native modules and scaffold a stdio-JSON sidecar migration kit
-cargo run -p cli -- sidecar --electron-pkg package.json --out-dir sidecar-out
+git clone <this-repo> wrap-swap
+cd wrap-swap
+cargo install --path crates/cli        # installs the `wrap-swap` binary
+cargo install --path crates/webview-qa # optional: the WebView divergence harness
+wrap-swap --version
 ```
 
-## Walkthrough (runnable, uses `examples/`)
+Prefer not to install? Every command below also works in-repo as
+`cargo run -p cli -- <args>`.
+
+## Quickstart — point it at *your* app
+
+### Electron
+
+Give it your `package.json` and your **main-process directory** (not just `main.js` — see
+[Known limits](#known-limits)):
 
 ```sh
-# 1. See the whole cited gap matrix (or just one platform)
-cargo run -p cli -- report --source uwp
+wrap-swap analyze --electron-pkg ./package.json --electron-main ./src/main
+```
 
-# 2. Analyze the fixture UWP app straight from its manifest,
-#    saving the detected profile so you can edit it
-cargo run -p cli -- analyze --appx examples/uwp-app/AppxManifest.xml \
-    --emit-profile my-profile.toml
+You get two things: a **gap list** (what Tauri can do and how) and a **known-divergence
+report** (what it can't, and why). Roughly:
 
-# 3. Analyze the fixture Electron app from package.json + main process
-cargo run -p cli -- analyze --electron-pkg examples/electron-app/package.json \
-    --electron-main examples/electron-app/main.js
+```
+# Gap List
 
-# 4. Scaffold bridge code from a hand-written profile
-cargo run -p cli -- scaffold --profile examples/profile-uwp.toml --out-dir wrap-swap-out
+- Tray icon + menu (electron.tray): Native
+- Global shortcuts (electron.global_shortcut): Plugin
+- Native Node modules (electron.native_module): Sidecar
 
-# 5. Scaffold a sidecar kit for the fixture app's native modules
-cargo run -p cli -- sidecar --electron-pkg examples/electron-app/package.json \
-    --out-dir sidecar-out
+# Known-Divergence Report
 
-# 6. Cross-WebView harness: config -> LIVE capture -> diff
-cargo run -p webview-qa -- init-config --out webview-qa.toml
-cargo run -p webview-qa -- capture --url https://example.com --config webview-qa.toml --out edge.json
-cargo run -p webview-qa -- diff --blob edge.json --blob other-engine.json
+- **Tray icon + menu — visual parity NOT measured** (electron.tray): behavior is covered,
+  but look/feel equivalence is unverified …
+- **WebView engine divergence** (webview.engine): Tauri uses the OS-native WebView …
+```
 
-# (or render the probe JS to run yourself inside another engine's driver)
-cargo run -p webview-qa -- probe --engine wkwebview --config webview-qa.toml --out probe.js
+Then generate the bridge code for the achievable gaps:
+
+```sh
+wrap-swap scaffold --electron-pkg ./package.json --electron-main ./src/main --out-dir bridge
+```
+
+`bridge/bridge.rs` wires the plugins that are proven drop-ins; `bridge/deps.txt` lists the exact
+crates to add. Native Node modules get their own migration kit:
+
+```sh
+wrap-swap sidecar --electron-pkg ./package.json --out-dir sidecar
+```
+
+### UWP
+
+```sh
+wrap-swap analyze --appx ./AppxManifest.xml --emit-profile my-profile.toml
+```
+
+`--emit-profile` saves what was detected so you can **edit it** — add capabilities the manifest
+doesn't declare, drop ones you don't use — then feed it back:
+
+```sh
+wrap-swap analyze  --profile my-profile.toml
+wrap-swap scaffold --profile my-profile.toml --out-dir bridge
+```
+
+### Just browsing?
+
+`wrap-swap report` prints the whole cited matrix with no input at all
+(`--source uwp|electron` to narrow it).
+
+## Known limits
+
+Read these before trusting the output:
+
+- **Windows only.** macOS/Linux support is deliberately deferred, not in progress.
+- **Electron detection is textual.** It greps your main-process sources for Electron API
+  identifiers. It will miss dynamically-built or aliased requires, and a **bundled/webpack'd**
+  main process may defeat it entirely. Always sanity-check the gap list against what you know
+  your app does.
+- **Pass a directory, not one file.** A single-file `--electron-main` scans only that file and
+  prints a warning saying so; real main processes span several modules.
+- **Capability coverage is 24 rows** — the common surface, not everything WinRT/Electron expose.
+  Anything not in the matrix is reported as *unknown and skipped*, never silently assumed fine.
+- **"Visual parity" is declared, not measured.** Six UI-surfacing capabilities are marked
+  visual-tier (ADR 0001) and always report *not measured* — see `docs/adr/0001-mimicry-bar.md`.
+- **CI has never actually run** — there is no remote yet, so the workflow in
+  `.github/workflows/ci.yml` is unexercised. The local suite is green (`cargo test --workspace`,
+  `cargo clippy -- -D warnings`), which is not the same thing.
+
+Full list: [`docs/ISSUES.md`](docs/ISSUES.md).
+
+## Honesty rules
+
+Every matrix row cites a public doc (enforced by a test). Rows with **no viable Tauri path** or
+unresolved research are reported as divergences / **OPEN QUESTION** — never scaffolded as
+fabricated code. The scaffolder emits working wiring only where a recipe is *compile-verified*
+against the real tauri crates; everything else is a stub or a commented example with its
+citation. A plugin that needs configuration (e.g. `tauri-plugin-stronghold`) is never wired
+blindly.
+
+## Cross-WebView harness (optional)
+
+```sh
+webview-qa init-config --out webview-qa.toml
+webview-qa capture --url http://localhost:1420/ --config webview-qa.toml --out edge.json
+webview-qa diff --blob edge.json --blob other-engine.json
 ```
 
 `capture` drives **headless Edge over the DevTools protocol** — Edge's Chromium is the engine
-WebView2 embeds, so the capture is representative of WebView2 (it's labelled `chromium-edge`,
-not `webview2`, because it is Edge and not an embedded WebView2 host). WKWebView and WebKitGTK
-drivers need macOS/Linux; on Windows a run is single-engine and the report says so explicitly.
+WebView2 embeds, so the capture is representative of WebView2 (labelled `chromium-edge`, not
+`webview2`, because it is Edge and not an embedded WebView2 host). On Windows a run is
+single-engine and the report says so explicitly.
 
-Step 4 on `examples/profile-uwp.toml` is the honesty invariant in action: `uwp.toast` and
-`uwp.protocol_activation` get real wiring, while `uwp.live_tiles` / `uwp.share_target` are
-reported as divergences and produce **no code at all**.
+## Try it without your own app
 
-A capability profile is TOML:
+The repo ships fixtures under `examples/`:
+
+```sh
+cargo run -p cli -- report --source uwp
+cargo run -p cli -- analyze --appx examples/uwp-app/AppxManifest.xml
+cargo run -p cli -- analyze --electron-pkg examples/electron-app/package.json \
+    --electron-main examples/electron-app/main.js
+cargo run -p cli -- scaffold --profile examples/profile-uwp.toml --out-dir wrap-swap-out
+cargo run -p cli -- sidecar --electron-pkg examples/electron-app/package.json --out-dir sidecar-out
+```
+
+The scaffold step is the honesty invariant in action: `uwp.protocol_activation` gets real
+wiring, while `uwp.live_tiles` / `uwp.share_target` are reported as divergences and produce
+**no code at all**.
+
+A capability profile is plain TOML:
 
 ```toml
 source = "electron"           # or "uwp"
 capabilities = ["electron.tray", "electron.global_shortcut"]
 ```
 
-`analyze`/`scaffold` also accept `--appx` or `--electron-pkg`+`--electron-main` to derive the
-profile automatically; add `--emit-profile profile.toml` to save the parsed profile for editing.
+## Layout
 
-## Honesty rules
+- `crates/core` — package `core`: matrix model, dataset loader, parsers, analyzer, scaffolder.
+- `crates/cli` — the `wrap-swap` binary (`report | analyze | scaffold | sidecar`).
+- `crates/winrt-shim` — reusable WinRT capability shim (toast content + XML builder).
+- `crates/webview-qa` — the `webview-qa` binary: probe, live capture, divergence differ.
+- `data/matrix.toml` — the cited capability/gap dataset (source of truth).
 
-Every matrix row cites a public doc (enforced by a test). Rows with **no viable Tauri path** or
-unresolved research are reported as divergences / **OPEN QUESTION**, never scaffolded as
-fabricated code. The scaffolder emits working wiring only where a proven recipe (official plugin
-or established crate) exists; everything else is a `todo!()` stub with an inline citation.
+> Crate names are short and plain, with no project prefix, and every crate sets
+> `publish = false`. `cli` imports the `core` package under the alias `corelib`, because a
+> dependency literally named `core` shadows Rust's built-in `core` crate.
 
 ## Development
 
 ```sh
-cargo test --workspace                              # 18 tests (unit + integration)
+cargo test --workspace                                  # 52 tests
 cargo clippy --workspace --all-targets -- -D warnings
 cargo build --workspace
+
+# Opt-in (network, ~4 min): compile generated scaffolding against the REAL tauri crates
+cargo test -p core --test scaffold_compiles -- --ignored --test-threads=1
 ```
+
+## License
+
+BSD 3-Clause — see [LICENSE](LICENSE).

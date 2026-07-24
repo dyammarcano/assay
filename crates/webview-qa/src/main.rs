@@ -7,7 +7,11 @@ use webview_qa::{
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Parser)]
-#[command(name = "webview-qa", about = "Cross-WebView divergence harness")]
+#[command(
+    name = "webview-qa",
+    version,
+    about = "Cross-WebView divergence harness"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
