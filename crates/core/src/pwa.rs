@@ -145,6 +145,11 @@ pub struct TauriPort {
     pub not_ported: Vec<String>,
 }
 
+/// Chromium major version to advertise in the port's user agent. A round, current-ish value:
+/// WebView2 is evergreen, so the exact number is cosmetic — it only needs to read as a modern
+/// Edge to a server sniffing the UA string.
+const EDGE_MAJOR: u32 = 150;
+
 /// A minimal valid 16x16 Windows `.ico`.
 ///
 /// `tauri-build` hard-fails without `icons/icon.ico` — it needs one to generate the Windows
@@ -212,6 +217,17 @@ pub fn port_pwa_to_tauri(app: &PwaApp) -> TauriPort {
     // bar". A standalone PWA still gets an OS window frame.
     let (width, height) = (1000, 800);
 
+    // Present as Edge. The original hosted PWA *is* Edge (its manifest names
+    // `Microsoft.MicrosoftEdge.Stable` as the host runtime), and WebView2's default user agent
+    // differs enough that some sites reject it: verified on Instagram, whose page renders and
+    // then closes the WebView2 window after ~15s, while the same build with an Edge UA is not
+    // sniffed the same way. Faithful, not a spoof — this window really is the same Chromium.
+    let user_agent = format!(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) \
+Chrome/{v}.0.0.0 Safari/537.36 Edg/{v}.0.0.0",
+        v = EDGE_MAJOR
+    );
+
     let tauri_conf = format!(
         r#"{{
   "$schema": "https://schema.tauri.app/config/2",
@@ -228,7 +244,8 @@ pub fn port_pwa_to_tauri(app: &PwaApp) -> TauriPort {
         "url": "{url}",
         "width": {width},
         "height": {height},
-        "resizable": true
+        "resizable": true,
+        "userAgent": "{user_agent}"
       }}
     ],
     "security": {{
@@ -245,6 +262,7 @@ pub fn port_pwa_to_tauri(app: &PwaApp) -> TauriPort {
         name = app.name,
         slug = slug,
         url = app.start_url,
+        user_agent = user_agent,
     );
 
     let cargo_toml = format!(
@@ -299,11 +317,20 @@ the port tracks a different Chromium build than the machine's Edge at any given 
             .into(),
     );
     not_ported.push(
-        "Browser-identity sniffing: WebView2 does not present as Edge, and some sites act on \
-that. Verified for this generator: an Instagram port renders the real login page, then the \
-page's own script closes the window after ~15s; the same build pointed at a static site stays \
-open. If the target sniffs the user agent, you may need to override it (Tauri's webview UA \
-setting) or accept the divergence."
+        "Existing login session: the original hosted PWA runs inside Edge's Default profile \
+(its manifest sets `profile-directory?Default`), so it shares Edge's cookies and is already \
+logged in if you are logged into the site in Edge. This port is a SEPARATE browser with its \
+own cookie store — it starts logged out. It DOES persist its own session, so you log in once \
+and it sticks; it just cannot inherit Edge's existing login (that cookie store is app-bound \
+encrypted and locked while Edge runs, so copying it is neither safe nor faithful)."
+            .into(),
+    );
+    not_ported.push(
+        "Browser-identity sniffing: WebView2's default user agent differs from Edge's, and some \
+sites act on that. Verified for this generator: with the default UA an Instagram port renders \
+the login page and then the page closes the window after ~15s. This port sets an Edge user \
+agent to match the original (which really is Edge); if a target sniffs by other signals you \
+may still see divergence."
             .into(),
     );
 
@@ -461,6 +488,25 @@ mod tests {
         assert!(port.cargo_toml.contains("name = \"instagram\""));
         assert!(port.cargo_toml.contains("publish = false"));
         assert!(port.main_rs.contains("tauri::Builder::default()"));
+    }
+
+    #[test]
+    fn the_port_presents_as_edge_because_the_original_is_edge() {
+        let app = detect_pwa(INSTAGRAM).expect("detect");
+        let port = port_pwa_to_tauri(&app);
+        assert!(port.tauri_conf.contains("\"userAgent\""));
+        assert!(port.tauri_conf.contains("Edg/"), "must advertise Edge, not bare Chrome");
+    }
+
+    #[test]
+    fn the_missing_login_session_is_stated_as_a_divergence() {
+        let app = detect_pwa(INSTAGRAM).expect("detect");
+        let port = port_pwa_to_tauri(&app);
+        assert!(
+            port.not_ported.iter().any(|n| n.contains("logged out")),
+            "the port must warn that it does not inherit the existing login"
+        );
+        assert!(port.migration_md.contains("Default profile"));
     }
 
     #[test]
