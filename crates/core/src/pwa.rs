@@ -298,6 +298,14 @@ plain MSI and updates through whatever mechanism you add."
 the port tracks a different Chromium build than the machine's Edge at any given moment."
             .into(),
     );
+    not_ported.push(
+        "Browser-identity sniffing: WebView2 does not present as Edge, and some sites act on \
+that. Verified for this generator: an Instagram port renders the real login page, then the \
+page's own script closes the window after ~15s; the same build pointed at a static site stays \
+open. If the target sniffs the user agent, you may need to override it (Tauri's webview UA \
+setting) or accept the divergence."
+            .into(),
+    );
 
     let migration_md = format!(
         r#"# {name} — Tauri port
